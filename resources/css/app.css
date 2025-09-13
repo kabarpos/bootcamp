@@ -1,7 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import './color.css';
 
 [x-cloak] {
     display: none;
+}
+
+/* Theme initialization */
+html {
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+/* Base styles using custom colors */
+body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
 }

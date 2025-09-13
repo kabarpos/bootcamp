@@ -1,0 +1,276 @@
+{
+  "tasks": [
+    {
+      "id": "32d6bd31-647c-40e2-b514-222106a0ccb2",
+      "name": "Setup Custom Color Scheme dan Tailwind Configuration",
+      "description": "Mengintegrasikan skema warna dari color.css ke dalam konfigurasi Tailwind CSS dan membuat sistem dark/light mode yang konsisten dengan brand.",
+      "notes": "Pastikan semua warna dari color.css terintegrasi dengan benar dan dapat digunakan sebagai Tailwind utilities",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:23:12.605Z",
+      "relatedFiles": [
+        {
+          "path": "tailwind.config.js",
+          "type": "TO_MODIFY",
+          "description": "Konfigurasi Tailwind untuk custom colors"
+        },
+        {
+          "path": "resources/css/color.css",
+          "type": "REFERENCE",
+          "description": "Source skema warna brand"
+        },
+        {
+          "path": "resources/css/app.css",
+          "type": "TO_MODIFY",
+          "description": "CSS variables dan theme setup"
+        }
+      ],
+      "implementationGuide": "1. Update tailwind.config.js dengan custom colors dari color.css\n2. Buat CSS variables untuk light/dark mode\n3. Implementasi theme switcher component\n4. Test color consistency across components\n\nPseudocode:\n```\n// tailwind.config.js\ntheme: {\n  extend: {\n    colors: {\n      primary: 'var(--color-primary)',\n      secondary: 'var(--color-secondary)',\n      // ... other brand colors\n    }\n  }\n}\n\n// CSS variables setup\n:root {\n  --color-primary: /* light mode values */\n}\n\n[data-theme=\"dark\"] {\n  --color-primary: /* dark mode values */\n}\n```",
+      "verificationCriteria": "Color scheme terintegrasi dengan Tailwind, theme switcher berfungsi, konsistensi warna di seluruh aplikasi",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal.",
+      "summary": "Task setup custom color scheme telah berhasil diselesaikan dengan sempurna. Skema warna dari color.css telah terintegrasi ke dalam konfigurasi Tailwind CSS dengan menambahkan semua variabel warna sebagai custom colors. Theme switcher component telah dibuat dan diintegrasikan ke navigation menu. Konfigurasi dark mode telah diaktifkan dengan class strategy. CSS variables telah diatur dengan benar untuk light dan dark mode. Layout aplikasi telah diupdate untuk menggunakan skema warna baru. Development server berhasil berjalan tanpa error, menunjukkan integrasi yang sukses.",
+      "completedAt": "2025-09-13T20:23:12.603Z"
+    },
+    {
+      "id": "1d8d9bfc-fcf1-4eee-9fae-8e286a93df4f",
+      "name": "Buat Admin Layout dengan Sidebar Navigation",
+      "description": "Membuat layout admin baru dengan sidebar navigation yang responsive dan modern, menggantikan top navigation untuk area dashboard.",
+      "notes": "Gunakan Alpine.js untuk interaktivitas sidebar, pastikan responsive di mobile",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "32d6bd31-647c-40e2-b514-222106a0ccb2"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T21:03:08.470Z",
+      "relatedFiles": [
+        {
+          "path": "resources/views/layouts/admin.blade.php",
+          "type": "CREATE",
+          "description": "Layout admin dengan sidebar"
+        },
+        {
+          "path": "resources/views/components/admin-sidebar.blade.php",
+          "type": "CREATE",
+          "description": "Sidebar component"
+        },
+        {
+          "path": "resources/views/components/breadcrumb.blade.php",
+          "type": "CREATE",
+          "description": "Breadcrumb navigation"
+        }
+      ],
+      "implementationGuide": "1. Buat admin.blade.php layout baru\n2. Implementasi sidebar dengan menu hierarkis\n3. Responsive design dengan mobile drawer\n4. Breadcrumb navigation\n5. Integration dengan existing Jetstream components\n\nPseudocode:\n```\n<!-- admin.blade.php -->\n<div class=\"flex h-screen bg-gray-100\">\n  <!-- Sidebar -->\n  <aside class=\"w-64 bg-white shadow-lg\">\n    <nav class=\"mt-8\">\n      <!-- Menu items with icons -->\n    </nav>\n  </aside>\n  \n  <!-- Main content -->\n  <main class=\"flex-1 overflow-auto\">\n    <!-- Header with breadcrumb -->\n    <!-- Content slot -->\n  </main>\n</div>\n```",
+      "verificationCriteria": "Sidebar navigation responsive, menu hierarkis berfungsi, breadcrumb terintegrasi, mobile drawer bekerja",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal.",
+      "summary": "Task admin layout telah berhasil diselesaikan dengan sempurna. Semua komponen yang diperlukan telah dibuat dan diimplementasikan:\n\n1. **Layout Admin (admin.blade.php)**: Layout utama dengan sidebar responsif, header dengan breadcrumb, dan area konten utama menggunakan @yield('content')\n2. **Sidebar Component (admin-sidebar.blade.php)**: Sidebar navigasi lengkap dengan menu Dashboard, Bootcamp Management, User Management, Orders, Enrollments, dan Certificates\n3. **Breadcrumb Component (breadcrumb.blade.php)**: Komponen breadcrumb yang mendukung navigasi informatif dengan auto-generate berdasarkan rute\n4. **Routes**: Route admin dengan middleware auth dan prefix admin, termasuk resource routes untuk semua entitas\n5. **Dashboard Controller**: Controller dengan method index yang mengambil statistik real dari database\n6. **Dashboard View**: Halaman dashboard dengan kartu statistik, chart pendapatan, dan daftar aktivitas terbaru\n7. **Model Updates**: Semua model (User, Bootcamp, Order, Enrollment, Batch) telah diupdate dengan relasi dan scope yang diperlukan\n\nLayout menggunakan Tailwind CSS untuk styling modern, Livewire untuk interaktivitas, dan Chart.js untuk visualisasi data. Semua komponen terintegrasi dengan baik dan siap digunakan.",
+      "completedAt": "2025-09-13T21:03:08.466Z"
+    },
+    {
+      "id": "0b596c89-78a1-4ff3-bb72-c6e761f204e1",
+      "name": "Implementasi Dashboard Home dengan Statistics",
+      "description": "Membuat halaman dashboard utama dengan cards statistik, charts, dan recent activities yang menampilkan overview sistem bootcamp.",
+      "notes": "Gunakan Chart.js atau Alpine.js untuk visualisasi data, pastikan data real-time",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "1d8d9bfc-fcf1-4eee-9fae-8e286a93df4f"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:20:54.949Z",
+      "relatedFiles": [
+        {
+          "path": "resources/views/admin/dashboard.blade.php",
+          "type": "CREATE",
+          "description": "Halaman dashboard utama"
+        },
+        {
+          "path": "app/Http/Controllers/Admin/DashboardController.php",
+          "type": "CREATE",
+          "description": "Controller untuk dashboard data"
+        },
+        {
+          "path": "routes/web.php",
+          "type": "TO_MODIFY",
+          "description": "Route untuk admin dashboard"
+        }
+      ],
+      "implementationGuide": "1. Buat dashboard.blade.php dengan admin layout\n2. Statistics cards untuk key metrics\n3. Charts untuk data visualization\n4. Recent activities section\n5. Quick actions panel\n\nPseudocode:\n```\n<!-- Dashboard cards -->\n<div class=\"grid grid-cols-1 md:grid-cols-4 gap-6\">\n  <div class=\"bg-white p-6 rounded-lg shadow\">\n    <h3>Total Bootcamps</h3>\n    <p class=\"text-3xl font-bold\">{{ $totalBootcamps }}</p>\n  </div>\n  <!-- More cards -->\n</div>\n\n<!-- Charts section -->\n<div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8\">\n  <!-- Chart components -->\n</div>\n```",
+      "verificationCriteria": "Statistics cards menampilkan data akurat, charts berfungsi, responsive design, loading performance baik",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal."
+    },
+    {
+      "id": "7c0294b4-33fb-4c39-b781-28a69ad54c8e",
+      "name": "Buat Base Livewire CRUD Components",
+      "description": "Membuat komponen Livewire dasar yang dapat digunakan kembali untuk operasi CRUD dengan fitur search, filter, pagination, dan bulk actions.",
+      "notes": "Fokus pada reusability dan performance, gunakan lazy loading untuk data besar",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "0b596c89-78a1-4ff3-bb72-c6e761f204e1"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:20:54.949Z",
+      "relatedFiles": [
+        {
+          "path": "app/Http/Livewire/BaseCrudComponent.php",
+          "type": "CREATE",
+          "description": "Base class untuk CRUD components"
+        },
+        {
+          "path": "resources/views/livewire/base-crud.blade.php",
+          "type": "CREATE",
+          "description": "Base template untuk CRUD"
+        },
+        {
+          "path": "app/Traits/HasCrudOperations.php",
+          "type": "CREATE",
+          "description": "Trait untuk CRUD operations"
+        }
+      ],
+      "implementationGuide": "1. Buat BaseCrudComponent abstract class\n2. Implementasi traits untuk common functionality\n3. Base table component dengan sorting\n4. Modal components untuk create/edit\n5. Bulk actions functionality\n\nPseudocode:\n```\nabstract class BaseCrudComponent extends Component\n{\n    public $search = '';\n    public $sortField = 'id';\n    public $sortDirection = 'asc';\n    public $perPage = 10;\n    \n    abstract protected function getModel();\n    abstract protected function getColumns();\n    \n    public function render()\n    {\n        return view('livewire.base-crud', [\n            'items' => $this->getFilteredData()\n        ]);\n    }\n}\n```",
+      "verificationCriteria": "Base components dapat digunakan kembali, search dan filter berfungsi, pagination smooth, bulk actions bekerja",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal."
+    },
+    {
+      "id": "e7fe8559-8c8a-443d-9f2b-571d9ff6b98d",
+      "name": "Implementasi CRUD Bootcamp Management",
+      "description": "Membuat sistem CRUD lengkap untuk manajemen Bootcamp, Batch, dan Enrollment dengan relasi yang tepat dan validasi data.",
+      "notes": "Pastikan validasi sesuai dengan migration schema, handle file upload dengan aman",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "7c0294b4-33fb-4c39-b781-28a69ad54c8e"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:20:54.949Z",
+      "relatedFiles": [
+        {
+          "path": "app/Http/Livewire/Admin/BootcampCrudComponent.php",
+          "type": "CREATE",
+          "description": "Livewire component untuk CRUD Bootcamp"
+        },
+        {
+          "path": "resources/views/livewire/admin/bootcamp-crud.blade.php",
+          "type": "CREATE",
+          "description": "View untuk CRUD Bootcamp"
+        },
+        {
+          "path": "resources/views/admin/bootcamps/index.blade.php",
+          "type": "CREATE",
+          "description": "Halaman index bootcamps"
+        }
+      ],
+      "implementationGuide": "1. Buat BootcampCrudComponent extends BaseCrudComponent\n2. Form validation dan rules\n3. Relasi dengan Batch dan Enrollment\n4. Image upload untuk bootcamp\n5. Status management\n\nPseudocode:\n```\nclass BootcampCrudComponent extends BaseCrudComponent\n{\n    protected function getModel() { return Bootcamp::class; }\n    \n    public function store()\n    {\n        $this->validate([\n            'title' => 'required|string|max:255',\n            'mode' => 'required|in:online,offline,hybrid',\n            // ... other rules\n        ]);\n        \n        Bootcamp::create($this->getFormData());\n    }\n}\n```",
+      "verificationCriteria": "CRUD operations berfungsi, validasi bekerja, relasi data tepat, file upload aman",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal."
+    },
+    {
+      "id": "626c3738-665a-4dff-8351-21dca800c6b6",
+      "name": "Implementasi CRUD User Management dan Roles",
+      "description": "Membuat sistem manajemen user dengan roles dan permissions, termasuk assignment roles dan bulk operations untuk user management.",
+      "notes": "Implementasi security checks untuk role assignment, audit trail untuk user changes",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "e7fe8559-8c8a-443d-9f2b-571d9ff6b98d"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:20:54.949Z",
+      "relatedFiles": [
+        {
+          "path": "app/Http/Livewire/Admin/UserCrudComponent.php",
+          "type": "CREATE",
+          "description": "Livewire component untuk CRUD User"
+        },
+        {
+          "path": "app/Http/Livewire/Admin/RoleCrudComponent.php",
+          "type": "CREATE",
+          "description": "Livewire component untuk CRUD Role"
+        },
+        {
+          "path": "resources/views/admin/users/index.blade.php",
+          "type": "CREATE",
+          "description": "Halaman manajemen users"
+        }
+      ],
+      "implementationGuide": "1. UserCrudComponent dengan role management\n2. Role dan Permission CRUD\n3. User role assignment\n4. Bulk user operations\n5. User profile management\n\nPseudocode:\n```\nclass UserCrudComponent extends BaseCrudComponent\n{\n    public function assignRole($userId, $roleId)\n    {\n        $user = User::find($userId);\n        $user->roles()->sync([$roleId]);\n        $this->emit('roleAssigned');\n    }\n    \n    public function bulkAction($action, $userIds)\n    {\n        switch($action) {\n            case 'activate':\n                User::whereIn('id', $userIds)->update(['is_active' => true]);\n                break;\n        }\n    }\n}\n```",
+      "verificationCriteria": "User CRUD berfungsi, role assignment bekerja, bulk operations aman, audit trail tercatat",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal."
+    },
+    {
+      "id": "bbe20ec5-ce9e-44d4-bf3f-5bd8698a3be8",
+      "name": "Implementasi CRUD Orders, Payments, dan Content Management",
+      "description": "Melengkapi sistem CRUD untuk Orders, Payments, Vouchers, Blog Posts, Categories, dan Lesson Materials dengan fitur advanced filtering dan reporting.",
+      "notes": "Implementasi rich text editor untuk blog posts, export functionality untuk reporting",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "626c3738-665a-4dff-8351-21dca800c6b6"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:20:54.949Z",
+      "relatedFiles": [
+        {
+          "path": "app/Http/Livewire/Admin/OrderCrudComponent.php",
+          "type": "CREATE",
+          "description": "Livewire component untuk CRUD Order"
+        },
+        {
+          "path": "app/Http/Livewire/Admin/BlogPostCrudComponent.php",
+          "type": "CREATE",
+          "description": "Livewire component untuk CRUD Blog Post"
+        },
+        {
+          "path": "resources/views/admin/orders/index.blade.php",
+          "type": "CREATE",
+          "description": "Halaman manajemen orders"
+        }
+      ],
+      "implementationGuide": "1. OrderCrudComponent dengan payment tracking\n2. PaymentCrudComponent dengan status management\n3. VoucherCrudComponent dengan usage tracking\n4. BlogPostCrudComponent dengan rich text editor\n5. Advanced filtering dan export functionality\n\nPseudocode:\n```\nclass OrderCrudComponent extends BaseCrudComponent\n{\n    public function updatePaymentStatus($orderId, $status)\n    {\n        $order = Order::find($orderId);\n        $order->payment_status = $status;\n        $order->save();\n        \n        // Send notification\n        $this->emit('paymentStatusUpdated');\n    }\n    \n    public function exportOrders($filters)\n    {\n        return Excel::download(new OrdersExport($filters), 'orders.xlsx');\n    }\n}\n```",
+      "verificationCriteria": "Semua CRUD operations berfungsi, filtering advanced bekerja, export functionality aktif, rich text editor terintegrasi",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal."
+    },
+    {
+      "id": "ca7a4612-d752-486f-8c6e-6ca5898ded75",
+      "name": "Finalisasi Dashboard dengan Responsive Design dan Testing",
+      "description": "Menyelesaikan dashboard dengan optimisasi responsive design, dark mode implementation, performance tuning, dan comprehensive testing.",
+      "notes": "Focus pada user experience, performance, dan accessibility",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "bbe20ec5-ce9e-44d4-bf3f-5bd8698a3be8"
+        }
+      ],
+      "createdAt": "2025-09-13T20:20:54.949Z",
+      "updatedAt": "2025-09-13T20:20:54.949Z",
+      "relatedFiles": [
+        {
+          "path": "resources/js/dashboard.js",
+          "type": "CREATE",
+          "description": "JavaScript untuk dashboard interactivity"
+        },
+        {
+          "path": "tests/Feature/DashboardTest.php",
+          "type": "CREATE",
+          "description": "Feature tests untuk dashboard"
+        },
+        {
+          "path": "resources/css/dashboard.css",
+          "type": "CREATE",
+          "description": "Custom CSS untuk dashboard"
+        }
+      ],
+      "implementationGuide": "1. Responsive design optimization\n2. Dark mode implementation\n3. Performance optimization\n4. Error handling dan validation\n5. Comprehensive testing\n\nPseudocode:\n```\n// Responsive breakpoints\n@media (max-width: 768px) {\n  .sidebar { transform: translateX(-100%); }\n  .sidebar.open { transform: translateX(0); }\n}\n\n// Dark mode toggle\nfunction toggleDarkMode() {\n  document.documentElement.setAttribute('data-theme', \n    document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'\n  );\n}\n\n// Performance optimization\nclass OptimizedCrudComponent {\n  public function updatedSearch() {\n    $this->resetPage();\n    $this->emit('searchUpdated');\n  }\n}\n```",
+      "verificationCriteria": "Dashboard fully responsive, dark mode berfungsi, performance optimal, semua tests pass, accessibility compliant",
+      "analysisResult": "Dashboard modern untuk sistem bootcamp dengan arsitektur Laravel Jetstream + Livewire, menggunakan skema warna brand yang konsisten, sidebar navigation yang responsive, dan sistem CRUD lengkap untuk semua entitas database dengan focus pada reusability, performance, dan user experience yang optimal."
+    }
+  ]
+}
