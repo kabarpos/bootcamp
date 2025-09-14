@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-background">
     <!-- Hero Section -->
-    <div class="relative bg-gradient-to-r from-primary/50 to-blue-600/50">
+    <div class="relative bg-gradient-to-r from-primary/70 to-blue-600/80">
         <div class="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
         <div class="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
             <div class="text-center">

@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-background">
     <!-- Hero Section -->
-    <div class="relative bg-gradient-to-r from-primary/50 to-blue-600/50">
+    <div class="relative bg-gradient-to-r from-primary/70 to-blue-600/80">
         <div class="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
         <div class="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
             <div class="text-center">
@@ -269,27 +269,6 @@
     </div>
 
     <!-- CTA Section -->
-    <div class="bg-gradient-to-r from-primary to-blue-600">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-            <div class="backdrop-blur-sm bg-white/10 rounded-lg p-8">
-                <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                    <span class="block">Ready to transform your career?</span>
-                    <span class="block text-accent">Enroll in this bootcamp today.</span>
-                </h2>
-                <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-                    <div class="inline-flex rounded-md shadow">
-                        <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-gray-50 cursor-pointer backdrop-blur-sm bg-white/90">
-                            Enroll Now
-                        </a>
-                    </div>
-                    <div class="ml-3 inline-flex rounded-md shadow">
-                        <a href="{{ route('public.contact') }}" class="inline-flex items-center justify-center px-5 py-3 border border-white border-opacity-30 text-base font-medium rounded-md text-white bg-white/10 hover:bg-white/20 cursor-pointer backdrop-blur-sm">
-                            Request Info
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-public.cta-section />
 </div>
 @endsection
