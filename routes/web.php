@@ -37,4 +37,9 @@ Route::middleware([
     Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);
     Route::resource('enrollments', App\Http\Controllers\Admin\EnrollmentController::class);
     Route::resource('certificates', App\Http\Controllers\Admin\CertificateController::class);
+    
+    // Certificate custom actions
+    Route::patch('certificates/{certificate}/issue', [App\Http\Controllers\Admin\CertificateController::class, 'issue'])->name('certificates.issue');
+    Route::patch('certificates/{certificate}/revoke', [App\Http\Controllers\Admin\CertificateController::class, 'revoke'])->name('certificates.revoke');
+    Route::get('certificates/{certificate}/download', [App\Http\Controllers\Admin\CertificateController::class, 'download'])->name('certificates.download');
 });

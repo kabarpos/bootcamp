@@ -56,9 +56,30 @@ class TestDataSeeder extends Seeder
         $roles = Role::factory()->count(5)->create();
         $this->command->info('Created 5 roles');
 
-        // Create permissions (5)
-        $permissions = Permission::factory()->count(5)->create();
-        $this->command->info('Created 5 permissions');
+        // Create permissions (5) - only create if they don't already exist
+        $permissions = [];
+        $existingPermissions = Permission::pluck('name')->toArray();
+        $neededPermissions = 5;
+        $createdCount = 0;
+        
+        // Try to create permissions, but skip if they already exist
+        for ($i = 0; $i < $neededPermissions * 2; $i++) { // Try more times to account for duplicates
+            if (count($permissions) >= $neededPermissions) {
+                break;
+            }
+            
+            $permission = Permission::factory()->make();
+            
+            // Check if permission already exists
+            if (!in_array($permission->name, $existingPermissions)) {
+                $permission->save();
+                $permissions[] = $permission;
+                $existingPermissions[] = $permission->name;
+                $createdCount++;
+            }
+        }
+        
+        $this->command->info("Created {$createdCount} permissions");
 
         // Create enrollments (5)
         $enrollments = Enrollment::factory()->count(5)->create();
@@ -91,8 +112,10 @@ class TestDataSeeder extends Seeder
 
         // Associate roles with permissions
         foreach ($roles as $role) {
-            $rolePermissions = $permissions->random(rand(2, 4))->pluck('id');
-            $role->permissions()->attach($rolePermissions);
+            if (count($permissions) > 0) {
+                $rolePermissions = collect($permissions)->random(min(rand(2, 4), count($permissions)))->pluck('id');
+                $role->permissions()->attach($rolePermissions);
+            }
         }
         $this->command->info('Associated roles with permissions');
 
