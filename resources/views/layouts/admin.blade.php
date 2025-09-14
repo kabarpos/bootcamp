@@ -50,14 +50,8 @@
                         <x-breadcrumb />
 
                         <!-- User menu -->
-                        <div class="flex items-center space-x-4">
-                            <!-- Notifications -->
-                            <button class="p-2 text-gray-400 hover:text-gray-500">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6l-6-6v6z" />
-                                </svg>
-                            </button>
+                        <div class="flex items-center space-x-4 h-10">
+   
 
                             <!-- User dropdown -->
                             <div class="relative" x-data="{ open: false }">

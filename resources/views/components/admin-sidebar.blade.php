@@ -3,8 +3,8 @@
     <!-- Sidebar header -->
     <div class="flex items-center justify-between h-16 px-6 bg-indigo-600">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <img class="h-8 w-8" src="{{ asset('images/logo.svg') }}" alt="Logo">
+            <div class="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-md bg-white text-indigo-600 font-bold text-lg">
+                A
             </div>
             <div class="ml-3">
                 <h1 class="text-xl font-semibold text-white">Admin Panel</h1>
