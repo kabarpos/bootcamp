@@ -2,9 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public Routes
+Route::get('/', [App\Http\Controllers\PublicController::class, 'index'])->name('public.homepage');
+Route::get('/about', [App\Http\Controllers\PublicController::class, 'about'])->name('public.about');
+Route::get('/contact', [App\Http\Controllers\PublicController::class, 'contact'])->name('public.contact');
+Route::get('/bootcamps', [App\Http\Controllers\PublicController::class, 'bootcamps'])->name('public.bootcamps');
+Route::get('/bootcamps/{slug}', [App\Http\Controllers\PublicController::class, 'bootcamp'])->name('public.bootcamp');
 
 Route::middleware([
     'auth:sanctum',

@@ -1,0 +1,48 @@
+/* Public-specific styles */
+
+/* Hero section gradients */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-foreground) 100%);
+}
+
+/* Card hover effects */
+.bootcamp-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bootcamp-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Button hover effects */
+.btn-primary {
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-foreground);
+}
+
+/* Navigation active state */
+.nav-link-active {
+    border-color: var(--color-primary);
+    color: var(--color-foreground);
+}
+
+/* Stats section */
+.stats-number {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-foreground) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .stats-number {
+        font-size: 2rem;
+    }
+}

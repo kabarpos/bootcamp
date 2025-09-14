@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './color.css';
+@import './public.css';
 
 [x-cloak] {
     display: none;
@@ -19,6 +20,11 @@ html.dark {
 /* Base styles using custom colors */
 body {
     @apply bg-background text-foreground;
+    font-family: 'Manrope', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Font family utilities */
+.font-manrope {
+    font-family: 'Manrope', sans-serif;
+}
