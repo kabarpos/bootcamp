@@ -67,6 +67,70 @@
         />
     </x-public.bootcamps-section>
     
+    <x-public.testimonials-section>
+        <x-public.testimonial-card
+            image="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            name="Sarah Johnson"
+            position="Frontend Developer"
+            content="The bootcamp completely transformed my career. I went from having no coding experience to landing a job as a frontend developer at a top tech company."
+            rating="5"
+            date="2 weeks ago"
+        />
+        
+        <x-public.testimonial-card
+            image="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            name="Michael Rodriguez"
+            position="Data Scientist"
+            content="The curriculum was challenging but well-structured. The instructors were incredibly supportive and the projects helped me build a strong portfolio."
+            rating="5"
+            date="1 month ago"
+        />
+        
+        <x-public.testimonial-card
+            image="https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            name="Emily Chen"
+            position="UX Designer"
+            content="The career services team helped me prepare for interviews and connected me with potential employers. I couldn't have asked for better support."
+            rating="5"
+            date="3 months ago"
+        />
+    </x-public.testimonials-section>
+    
+    <x-public.pricing-section>
+        <x-public.pricing-card
+            title="Basic"
+            price="$1,999"
+            description="Perfect for beginners wanting to explore coding"
+        >
+            <x-public.pricing-feature feature="8 weeks of core curriculum" />
+            <x-public.pricing-feature feature="Access to online resources" />
+            <x-public.pricing-feature feature="Community support" />
+        </x-public.pricing-card>
+        
+        <x-public.pricing-card
+            title="Standard"
+            price="$2,999"
+            description="Our most popular plan with comprehensive training"
+            featured="true"
+        >
+            <x-public.pricing-feature feature="12 weeks of intensive training" />
+            <x-public.pricing-feature feature="Hands-on projects" />
+            <x-public.pricing-feature feature="Career services" />
+            <x-public.pricing-feature feature="Mentorship program" />
+        </x-public.pricing-card>
+        
+        <x-public.pricing-card
+            title="Premium"
+            price="$3,999"
+            description="For those seeking the complete bootcamp experience"
+        >
+            <x-public.pricing-feature feature="16 weeks of advanced training" />
+            <x-public.pricing-feature feature="One-on-one mentoring" />
+            <x-public.pricing-feature feature="Job placement assistance" />
+            <x-public.pricing-feature feature="Lifetime career support" />
+        </x-public.pricing-card>
+    </x-public.pricing-section>
+    
     <x-public.cta-section />
     <x-public.contact-section />
 @endsection

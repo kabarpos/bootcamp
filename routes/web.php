@@ -8,6 +8,10 @@ Route::get('/about', [App\Http\Controllers\PublicController::class, 'about'])->n
 Route::get('/contact', [App\Http\Controllers\PublicController::class, 'contact'])->name('public.contact');
 Route::get('/bootcamps', [App\Http\Controllers\PublicController::class, 'bootcamps'])->name('public.bootcamps');
 Route::get('/bootcamps/{slug}', [App\Http\Controllers\PublicController::class, 'bootcamp'])->name('public.bootcamp');
+Route::get('/bootcamps/{slug}/resources', [App\Http\Controllers\PublicController::class, 'resources'])->name('public.resources');
+Route::get('/bootcamps/{slug}/assessments', [App\Http\Controllers\PublicController::class, 'assessments'])->name('public.assessments');
+Route::get('/bootcamps/{slug}/projects', [App\Http\Controllers\PublicController::class, 'projects'])->name('public.projects');
+Route::get('/dashboard', [App\Http\Controllers\PublicController::class, 'dashboard'])->name('public.dashboard');
 
 Route::middleware([
     'auth:sanctum',

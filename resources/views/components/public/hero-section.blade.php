@@ -10,7 +10,7 @@
             <p class="mt-6 max-w-lg mx-auto text-xl text-white/90 sm:max-w-3xl">
                 {{ $description ?? 'Join our intensive bootcamp programs and accelerate your career in tech. Learn from industry experts and build real-world projects.' }}
             </p>
-            <div class="mt-10 flex justify-center gap-4">
+            <div class="mt-10 flex justify-center gap-4 flex-wrap">
                 <x-public.button href="{{ $exploreLink ?? '#bootcamps' }}">
                     {{ $exploreText ?? 'Explore Bootcamps' }}
                 </x-public.button>

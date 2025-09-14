@@ -58,4 +58,53 @@ class PublicController extends Controller
         // For now, we'll just pass the slug to the view
         return view('public.bootcamp-details', compact('slug'));
     }
+    
+    /**
+     * Show the student dashboard.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function dashboard()
+    {
+        return view('public.dashboard');
+    }
+    
+    /**
+     * Show the resources page for a specific bootcamp.
+     *
+     * @param  string  $slug
+     * @return \Illuminate\View\View
+     */
+    public function resources($slug)
+    {
+        // In a real application, you would fetch the bootcamp by slug
+        // For now, we'll just pass the slug to the view
+        return view('public.resources', compact('slug'));
+    }
+    
+    /**
+     * Show the assessments page for a specific bootcamp.
+     *
+     * @param  string  $slug
+     * @return \Illuminate\View\View
+     */
+    public function assessments($slug)
+    {
+        // In a real application, you would fetch the bootcamp by slug
+        // For now, we'll just pass the slug to the view
+        return view('public.assessments', compact('slug'));
+    }
+    
+    /**
+     * Show the projects page for a specific bootcamp.
+     *
+     * @param  string  $slug
+     * @return \Illuminate\View\View
+     */
+    public function projects($slug)
+    {
+        // In a real application, you would fetch the bootcamp by slug
+        // For now, we'll just pass the slug to the view
+        return view('public.projects', compact('slug'));
+    }
 }
