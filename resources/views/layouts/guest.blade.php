@@ -17,8 +17,8 @@
         <!-- Styles -->
         @livewireStyles
     </head>
-    <body>
-        <div class="font-sans text-gray-900 antialiased" style="font-family: 'Manrope', sans-serif;">
+    <body class="font-sans antialiased bg-background text-foreground" style="font-family: 'Manrope', sans-serif;">
+        <div class="min-h-screen bg-gradient-to-br from-background via-card/30 to-primary/5">
             {{ $slot }}
         </div>
 
