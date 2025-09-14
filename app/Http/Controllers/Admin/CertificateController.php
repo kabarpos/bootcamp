@@ -61,7 +61,7 @@ class CertificateController extends Controller
         }
 
         $certificates = $query->orderBy('created_at', 'desc')->paginate(15);
-        $batches = Batch::orderBy('name')->get();
+        $batches = Batch::orderBy('code')->get();
 
         return view('admin.certificates.index', compact('certificates', 'batches'));
     }

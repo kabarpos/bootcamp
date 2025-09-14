@@ -74,6 +74,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the certificates for the user through enrollments.
+     */
+    public function certificates()
+    {
+        return $this->hasManyThrough(Certificate::class, Enrollment::class);
+    }
+
+    /**
      * Get the orders through enrollments.
      */
     public function orders()

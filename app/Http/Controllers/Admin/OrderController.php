@@ -80,7 +80,7 @@ class OrderController extends Controller
                                 ->whereDoesntHave('orders')
                                 ->get();
         $vouchers = Voucher::where('is_active', true)
-                          ->where('valid_until', '>=', now())
+                          ->where('valid_to', '>=', now())
                           ->get();
         
         return view('admin.orders.create', compact('enrollments', 'vouchers'));
@@ -105,7 +105,7 @@ class OrderController extends Controller
         
         if (isset($validated['voucher_id'])) {
             $voucher = Voucher::find($validated['voucher_id']);
-            if ($voucher && $voucher->is_active && $voucher->valid_until >= now()) {
+            if ($voucher && $voucher->is_active && $voucher->valid_to >= now()) {
                 if ($voucher->type === 'percentage') {
                     $discountAmount = ($amount * $voucher->value) / 100;
                 } else {

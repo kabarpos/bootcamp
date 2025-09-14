@@ -70,7 +70,7 @@
                                     Total Pembelian
                                 </div>
                                 <div class="text-2xl font-bold">
-                                    Rp {{ number_format(Auth::user()->orders()->where('status', 'completed')->sum('total_amount'), 0, ',', '.') }}
+                                    Rp {{ number_format(Auth::user()->orders()->where('orders.status', 'paid')->sum('total'), 0, ',', '.') }}
                                 </div>
                             </div>
                         </div>
@@ -98,9 +98,9 @@
                                             {{ ucfirst($enrollment->status) }}
                                         </span>
                                     </div>
-                                    <p class="text-muted-foreground text-xs mb-2">Batch: {{ $enrollment->batch->name }}</p>
+                                    <p class="text-muted-foreground text-xs mb-2">Batch: {{ $enrollment->batch->code }}</p>
                                     <p class="text-muted-foreground text-xs">Mulai: {{ $enrollment->batch->start_date->format('d M Y') }}</p>
-                                    @if($enrollment->certificates()->whereNotNull('issued_at')->exists())
+                                    @if($enrollment->certificate && $enrollment->certificate->issued_at)
                                         <div class="mt-3">
                                             <a href="#" class="inline-flex items-center text-xs text-blue-600 hover:text-blue-800">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

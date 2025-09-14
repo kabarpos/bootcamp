@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
@@ -14,8 +15,17 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Buat user admin jika belum ada
-        $admin = User::firstOrCreate(
+        // Create admin role if it doesn't exist
+        $adminRole = Role::firstOrCreate(
+            ['name' => 'admin'],
+            [
+                'name' => 'admin',
+                'guard_name' => 'web',
+            ]
+        );
+
+        // Create admin user if it doesn't exist
+        $adminUser = User::firstOrCreate(
             ['email' => 'admin@admin.com'],
             [
                 'name' => 'Administrator',
@@ -25,7 +35,12 @@ class AdminSeeder extends Seeder
             ]
         );
 
-        $this->command->info('Admin user created successfully!');
+        // Assign admin role to admin user if not already assigned
+        if (!$adminUser->hasRole('admin')) {
+            $adminUser->roles()->attach($adminRole->id);
+        }
+
+        $this->command->info('Admin role and user created successfully!');
         $this->command->info('Email: admin@admin.com');
         $this->command->info('Password: admin123');
     }

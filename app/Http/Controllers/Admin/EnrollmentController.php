@@ -50,8 +50,8 @@ class EnrollmentController extends Controller
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(15);
-        $batches = Batch::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        $batches = Batch::orderBy('code')->get();
+        $users = User::orderBy('email')->get();
 
         return view('admin.enrollments.index', compact('enrollments', 'batches', 'users'));
     }
@@ -61,8 +61,8 @@ class EnrollmentController extends Controller
      */
     public function create()
     {
-        $users = User::orderBy('name')->get();
-        $batches = Batch::where('status', 'active')->orderBy('name')->get();
+        $users = User::orderBy('email')->get();
+        $batches = Batch::where('status', 'active')->orderBy('code')->get();
         
         return view('admin.enrollments.create', compact('users', 'batches'));
     }
@@ -134,8 +134,8 @@ class EnrollmentController extends Controller
      */
     public function edit(Enrollment $enrollment)
     {
-        $users = User::orderBy('name')->get();
-        $batches = Batch::orderBy('name')->get();
+        $users = User::orderBy('email')->get();
+        $batches = Batch::orderBy('code')->get();
         
         return view('admin.enrollments.edit', compact('enrollment', 'users', 'batches'));
     }
@@ -206,7 +206,7 @@ class EnrollmentController extends Controller
             }
 
             // Check if enrollment has certificate
-            if ($enrollment->certificate()->exists()) {
+            if ($enrollment->certificate) {
                 return back()->withErrors(['error' => 'Tidak dapat menghapus enrollment yang memiliki sertifikat.']);
             }
 
