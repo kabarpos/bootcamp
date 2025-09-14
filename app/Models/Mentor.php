@@ -2,22 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Mentor extends Model
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
+    use HasFactory;
+
     protected $table = 'mentor';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'name',
@@ -27,4 +20,9 @@ class Mentor extends Model
         'linkedin_url',
         'website_url',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

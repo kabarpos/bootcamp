@@ -143,7 +143,7 @@
                 <div class="p-6">
                     @php
                         $availableBootcamps = \App\Models\Bootcamp::with(['batches' => function($query) {
-                            $query->where('start_date', '>', now())->where('is_active', true);
+                            $query->where('start_date', '>', now());
                         }])->where('is_active', true)->take(3)->get();
                     @endphp
                     

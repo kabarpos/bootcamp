@@ -2,42 +2,30 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Voucher extends Model
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
+    use HasFactory;
+
     protected $table = 'voucher';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'code',
         'type',
         'value',
-        'min_order_amount',
-        'usage_limit',
-        'used_count',
+        'max_discount',
         'valid_from',
         'valid_to',
+        'usage_limit',
+        'used_count',
         'is_active',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
-        'valid_from' => 'datetime',
-        'valid_to' => 'datetime',
+        'valid_from' => 'date',
+        'valid_to' => 'date',
         'is_active' => 'boolean',
     ];
 }

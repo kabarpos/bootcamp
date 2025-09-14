@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
         // Run the AdminSeeder
         $this->call(AdminSeeder::class);
         
+        // Run the TestDataSeeder to create sample data
+        $this->call(TestDataSeeder::class);
+        
         // Create a test user
         User::factory()->create([
             'name' => 'Test User',
