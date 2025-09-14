@@ -3,23 +3,30 @@
 @section('title', 'Edit Batch')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <h1 class="text-xl font-semibold text-gray-900">Edit Batch</h1>
-            <p class="mt-2 text-sm text-gray-700">Edit informasi batch "{{ $batch->code }}".</p>
+<div class="px-6 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Edit Batch</h1>
+            <p class="text-gray-600">Edit informasi batch "{{ $batch->code }}".</p>
         </div>
+        <a href="{{ route('admin.batches.index') }}" 
+           class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
+            Kembali
+        </a>
     </div>
 
-    <div class="mt-8 bg-white shadow sm:rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Formulir Edit Batch</h2>
+        </div>
+        <div class="p-6">
             <form action="{{ route('admin.batches.update', $batch) }}" method="POST">
                 @csrf
                 @method('PUT')
                 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label for="bootcamp_id" class="block text-sm font-medium text-gray-700">Bootcamp</label>
+                        <label for="bootcamp_id" class="block text-sm font-medium text-gray-700 mb-1">Bootcamp</label>
                         <select name="bootcamp_id" id="bootcamp_id" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             @foreach($bootcamps as $bootcamp)
@@ -34,7 +41,7 @@
                     </div>
 
                     <div>
-                        <label for="code" class="block text-sm font-medium text-gray-700">Kode Batch</label>
+                        <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Kode Batch</label>
                         <input type="text" name="code" id="code" 
                                value="{{ old('code', $batch->code) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -44,7 +51,7 @@
                     </div>
 
                     <div>
-                        <label for="start_date" class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
                         <input type="date" name="start_date" id="start_date" 
                                value="{{ old('start_date', $batch->start_date->format('Y-m-d')) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -54,7 +61,7 @@
                     </div>
 
                     <div>
-                        <label for="end_date" class="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
                         <input type="date" name="end_date" id="end_date" 
                                value="{{ old('end_date', $batch->end_date->format('Y-m-d')) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -64,7 +71,7 @@
                     </div>
 
                     <div>
-                        <label for="start_time" class="block text-sm font-medium text-gray-700">Waktu Mulai</label>
+                        <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Waktu Mulai</label>
                         <input type="time" name="start_time" id="start_time" 
                                value="{{ old('start_time', $batch->start_time->format('H:i')) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -74,7 +81,7 @@
                     </div>
 
                     <div>
-                        <label for="end_time" class="block text-sm font-medium text-gray-700">Waktu Selesai</label>
+                        <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">Waktu Selesai</label>
                         <input type="time" name="end_time" id="end_time" 
                                value="{{ old('end_time', $batch->end_time->format('H:i')) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -84,7 +91,7 @@
                     </div>
 
                     <div>
-                        <label for="capacity" class="block text-sm font-medium text-gray-700">Kapasitas</label>
+                        <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Kapasitas</label>
                         <input type="number" name="capacity" id="capacity" 
                                value="{{ old('capacity', $batch->capacity) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -94,7 +101,7 @@
                     </div>
 
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <select name="status" id="status" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             <option value="upcoming" {{ old('status', $batch->status) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
@@ -108,7 +115,7 @@
                     </div>
 
                     <div>
-                        <label for="city_id" class="block text-sm font-medium text-gray-700">Kota</label>
+                        <label for="city_id" class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
                         <select name="city_id" id="city_id" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             <option value="">Pilih Kota</option>
@@ -124,7 +131,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label for="venue_name" class="block text-sm font-medium text-gray-700">Nama Venue</label>
+                        <label for="venue_name" class="block text-sm font-medium text-gray-700 mb-1">Nama Venue</label>
                         <input type="text" name="venue_name" id="venue_name" 
                                value="{{ old('venue_name', $batch->venue_name) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -134,7 +141,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label for="venue_address" class="block text-sm font-medium text-gray-700">Alamat Venue</label>
+                        <label for="venue_address" class="block text-sm font-medium text-gray-700 mb-1">Alamat Venue</label>
                         <textarea name="venue_address" id="venue_address" rows="3"
                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('venue_address', $batch->venue_address) }}</textarea>
                         @error('venue_address')
@@ -143,7 +150,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label for="meeting_link" class="block text-sm font-medium text-gray-700">Link Meeting</label>
+                        <label for="meeting_link" class="block text-sm font-medium text-gray-700 mb-1">Link Meeting</label>
                         <input type="url" name="meeting_link" id="meeting_link" 
                                value="{{ old('meeting_link', $batch->meeting_link) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -153,7 +160,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label for="meeting_platform" class="block text-sm font-medium text-gray-700">Platform Meeting</label>
+                        <label for="meeting_platform" class="block text-sm font-medium text-gray-700 mb-1">Platform Meeting</label>
                         <input type="text" name="meeting_platform" id="meeting_platform" 
                                value="{{ old('meeting_platform', $batch->meeting_platform) }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -163,13 +170,10 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex items-center justify-end gap-x-6">
-                    <a href="{{ route('admin.batches.index') }}" class="text-sm font-semibold leading-6 text-gray-900">
-                        Batal
-                    </a>
+                <div class="mt-6 flex items-center justify-end gap-x-4">
                     <button type="submit" 
-                            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        Simpan
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                        Update Batch
                     </button>
                 </div>
             </form>

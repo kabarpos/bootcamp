@@ -3,22 +3,29 @@
 @section('title', 'Tambah Bootcamp')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <h1 class="text-xl font-semibold text-gray-900">Tambah Bootcamp</h1>
-            <p class="mt-2 text-sm text-gray-700">Buat bootcamp baru dengan kategori dan mentor.</p>
+<div class="px-6 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Tambah Bootcamp</h1>
+            <p class="text-gray-600">Buat bootcamp baru dengan kategori dan mentor.</p>
         </div>
+        <a href="{{ route('admin.bootcamps.index') }}" 
+           class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
+            Kembali
+        </a>
     </div>
 
-    <div class="mt-8 bg-white shadow sm:rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Formulir Bootcamp Baru</h2>
+        </div>
+        <div class="p-6">
             <form action="{{ route('admin.bootcamps.store') }}" method="POST">
                 @csrf
                 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="sm:col-span-2">
-                        <label for="title" class="block text-sm font-medium text-gray-700">Judul Bootcamp</label>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Judul Bootcamp</label>
                         <input type="text" name="title" id="title" 
                                value="{{ old('title') }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -28,7 +35,7 @@
                     </div>
 
                     <div>
-                        <label for="mode" class="block text-sm font-medium text-gray-700">Mode</label>
+                        <label for="mode" class="block text-sm font-medium text-gray-700 mb-1">Mode</label>
                         <select name="mode" id="mode" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             <option value="online" {{ old('mode') == 'online' ? 'selected' : '' }}>Online</option>
@@ -41,7 +48,7 @@
                     </div>
 
                     <div>
-                        <label for="level" class="block text-sm font-medium text-gray-700">Level</label>
+                        <label for="level" class="block text-sm font-medium text-gray-700 mb-1">Level</label>
                         <select name="level" id="level" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             <option value="beginner" {{ old('level') == 'beginner' ? 'selected' : '' }}>Beginner</option>
@@ -54,7 +61,7 @@
                     </div>
 
                     <div>
-                        <label for="base_price" class="block text-sm font-medium text-gray-700">Harga Dasar (Rp)</label>
+                        <label for="base_price" class="block text-sm font-medium text-gray-700 mb-1">Harga Dasar (Rp)</label>
                         <input type="number" name="base_price" id="base_price" 
                                value="{{ old('base_price') }}"
                                step="0.01"
@@ -65,7 +72,7 @@
                     </div>
 
                     <div>
-                        <label for="duration_hours" class="block text-sm font-medium text-gray-700">Durasi (Jam)</label>
+                        <label for="duration_hours" class="block text-sm font-medium text-gray-700 mb-1">Durasi (Jam)</label>
                         <input type="number" name="duration_hours" id="duration_hours" 
                                value="{{ old('duration_hours') }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
@@ -75,7 +82,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label for="short_desc" class="block text-sm font-medium text-gray-700">Deskripsi Singkat</label>
+                        <label for="short_desc" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
                         <textarea name="short_desc" id="short_desc" rows="3"
                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('short_desc') }}</textarea>
                         @error('short_desc')
@@ -84,7 +91,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label for="syllabus_summary" class="block text-sm font-medium text-gray-700">Ringkasan Silabus</label>
+                        <label for="syllabus_summary" class="block text-sm font-medium text-gray-700 mb-1">Ringkasan Silabus</label>
                         <textarea name="syllabus_summary" id="syllabus_summary" rows="5"
                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('syllabus_summary') }}</textarea>
                         @error('syllabus_summary')
@@ -92,8 +99,8 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                         <div class="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             @foreach($categories as $category)
                                 <div class="flex items-center">
@@ -111,8 +118,8 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Mentor</label>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mentor</label>
                         <div class="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             @foreach($mentors as $mentor)
                                 <div class="flex items-center">
@@ -142,13 +149,10 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex items-center justify-end gap-x-6">
-                    <a href="{{ route('admin.bootcamps.index') }}" class="text-sm font-semibold leading-6 text-gray-900">
-                        Batal
-                    </a>
+                <div class="mt-6 flex items-center justify-end gap-x-4">
                     <button type="submit" 
-                            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        Simpan
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                        Simpan Bootcamp
                     </button>
                 </div>
             </form>

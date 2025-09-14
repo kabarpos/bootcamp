@@ -1,9 +1,14 @@
 @extends('layouts.admin')
 
+@section('title', 'Detail Batch')
+
 @section('content')
 <div class="px-6 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Detail Batch</h1>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Detail Batch</h1>
+            <p class="text-gray-600">Informasi lengkap tentang batch "{{ $batch->code }}".</p>
+        </div>
         <div class="flex space-x-2">
             <a href="{{ route('admin.batches.edit', $batch) }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
@@ -40,11 +45,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-1">Waktu</label>
-                    <p class="text-gray-900">{{ $batch->start_time }} - {{ $batch->end_time }} WIB</p>
+                    <p class="text-gray-900">{{ $batch->start_time->format('H:i') }} - {{ $batch->end_time->format('H:i') }} WIB</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-1">Status</label>
-                    <span class="px-2 py-1 rounded text-xs font-medium 
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
                         @if($batch->status === 'upcoming') bg-blue-100 text-blue-800
                         @elseif($batch->status === 'ongoing') bg-yellow-100 text-yellow-800
                         @elseif($batch->status === 'completed') bg-green-100 text-green-800
@@ -112,14 +117,14 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($batch->enrollments as $enrollment)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {{ $enrollment->user->name ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $enrollment->user->email ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 rounded text-xs font-medium 
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
                                 @if($enrollment->status === 'pending') bg-yellow-100 text-yellow-800
                                 @elseif($enrollment->status === 'confirmed') bg-blue-100 text-blue-800
                                 @elseif($enrollment->status === 'completed') bg-green-100 text-green-800
@@ -128,7 +133,7 @@
                                 {{ ucfirst($enrollment->status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $enrollment->created_at->format('d M Y H:i') }}
                         </td>
                     </tr>
