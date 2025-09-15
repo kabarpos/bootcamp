@@ -127,16 +127,20 @@
                 // Trigger snap popup. @snap_token_id = SNAP_TOKEN from backend
                 snap.pay(snapToken, {
                     onSuccess: function(result){
-                        window.location.href = '{{ route("payment.success", $order->id) }}';
+                        console.log('Payment success:', result);
+                        window.location.href = '{{ route("payment.success.redirect") }}?order_id=' + result.order_id + '&status_code=' + result.status_code + '&transaction_status=' + result.transaction_status;
                     },
                     onPending: function(result){
-                        window.location.href = '{{ route("payment.success", $order->id) }}';
+                        console.log('Payment pending:', result);
+                        window.location.href = '{{ route("payment.success.redirect") }}?order_id=' + result.order_id + '&status_code=' + result.status_code + '&transaction_status=' + result.transaction_status;
                     },
                     onError: function(result){
+                        console.log('Payment error:', result);
                         window.location.href = '{{ route("payment.failure") }}';
                     },
                     onClose: function(){
-                        alert('You closed the popup without finishing the payment');
+                        console.log('Payment popup closed');
+                        alert('You closed the popup without finishing the payment. If you have completed the payment, please wait for confirmation.');
                     }
                 });
             };

@@ -11,6 +11,7 @@ use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -85,8 +86,13 @@ class PaymentController extends Controller
             'status' => 'pending',
         ]);
 
-        // Create order
-        $invoiceNo = 'INV-' . date('Ymd') . '-' . str_pad(Order::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+        // Create a unique invoice number
+        $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        
+        // Ensure the invoice number is unique
+        while (Order::where('invoice_no', $invoiceNo)->exists()) {
+            $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        }
         
         $order = Order::create([
             'enrollment_id' => $enrollment->id,
@@ -131,7 +137,7 @@ class PaymentController extends Controller
         // Convert to integer for IDR currency (remove decimals)
         $transactionDetails = [
             'order_id' => $order->invoice_no,
-            'gross_amount' => (int) round($order->total), // Convert to integer
+            'gross_amount' => (int) round((float) $order->total), // Ensure it's a float before converting to int
         ];
 
         // Get Snap token from Midtrans
@@ -143,6 +149,7 @@ class PaymentController extends Controller
                 'order_id' => $order->id,
                 'invoice_no' => $order->invoice_no,
                 'user_id' => Auth::id(),
+                'transaction_details' => $transactionDetails,
             ]);
             return redirect()->route('public.dashboard')->with('error', 'Failed to initialize payment. Please try again.');
         }
