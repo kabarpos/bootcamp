@@ -92,9 +92,9 @@ class MidtransService
      */
     public function handleNotification($notification)
     {
-        $transactionStatus = $notification['transaction_status'];
-        $fraudStatus = $notification['fraud_status'];
-        $orderId = $notification['order_id'];
+        $transactionStatus = $notification['transaction_status'] ?? 'unknown';
+        $fraudStatus = $notification['fraud_status'] ?? 'unknown';
+        $orderId = $notification['order_id'] ?? 'unknown';
 
         $status = 'pending';
 

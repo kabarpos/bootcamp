@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Exclude the payment notification endpoint from CSRF verification
+        $middleware->validateCsrfTokens(except: [
+            'payment/notification',
+        ]);
+        
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class, // Add our new middleware

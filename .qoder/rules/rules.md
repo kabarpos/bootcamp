@@ -4,6 +4,7 @@ alwaysApply: true
 ---
 
 # STACK dan PROJECT INFO (DO n DONT)
+
 - Wajib menggunakan TAILWIND CSS 4 (DILARANG VERSI DIBAWAHNYA)
 - Wajib menggunakan LARAVEL 12 (DILARANG VERSI DIBAWAHNYA)
 - Wajib pakai Vite 7 (DILARANG VERSI DIBAWAHNYA)
