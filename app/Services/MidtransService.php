@@ -31,6 +31,15 @@ class MidtransService
     public function getSnapToken($transactionDetails)
     {
         try {
+            // Log the request for debugging
+            Log::info('Midtrans Snap Token Request', [
+                'url' => "{$this->baseUrl}/snap/v1/transactions",
+                'transaction_details' => $transactionDetails,
+                'server_key_prefix' => substr($this->serverKey, 0, 10) . '...',
+                'is_production' => $this->isProduction,
+                'notification_url' => route('payment.notification'),
+            ]);
+
             $response = Http::withBasicAuth($this->serverKey, '')
                 ->withHeaders([
                     'Accept' => 'application/json',
@@ -41,10 +50,23 @@ class MidtransService
                     'credit_card' => [
                         'secure' => true,
                     ],
+                    'callbacks' => [
+                        'finish' => route('payment.success.redirect'),
+                    ],
                 ]);
+
+            Log::info('Midtrans Snap Token Response', [
+                'status' => $response->status(),
+                'headers' => $response->headers(),
+                'body' => $response->body(),
+            ]);
 
             if ($response->successful()) {
                 $result = $response->json();
+                Log::info('Midtrans Snap Token Success', [
+                    'token' => isset($result['token']) ? substr($result['token'], 0, 10) . '...' : 'NOT_FOUND',
+                    'redirect_url' => $result['redirect_url'] ?? 'NOT_FOUND',
+                ]);
                 return $result['token'] ?? null;
             } else {
                 Log::error('Midtrans Snap Token Error', [

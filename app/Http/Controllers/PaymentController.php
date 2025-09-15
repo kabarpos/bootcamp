@@ -128,15 +128,22 @@ class PaymentController extends Controller
         }
 
         // Prepare transaction details for Midtrans
+        // Convert to integer for IDR currency (remove decimals)
         $transactionDetails = [
             'order_id' => $order->invoice_no,
-            'gross_amount' => (float) $order->total,
+            'gross_amount' => (int) round($order->total), // Convert to integer
         ];
 
         // Get Snap token from Midtrans
         $snapToken = $this->midtransService->getSnapToken($transactionDetails);
 
+        // Log if snap token is null
         if (!$snapToken) {
+            Log::error('Failed to get Snap token for order', [
+                'order_id' => $order->id,
+                'invoice_no' => $order->invoice_no,
+                'user_id' => Auth::id(),
+            ]);
             return redirect()->route('public.dashboard')->with('error', 'Failed to initialize payment. Please try again.');
         }
 
@@ -153,15 +160,24 @@ class PaymentController extends Controller
     {
         $notification = $request->all();
         
-        Log::info('Midtrans Notification', $notification);
+        Log::info('Midtrans Notification Received', $notification);
 
         // Handle the notification
         $result = $this->midtransService->handleNotification($notification);
+        
+        Log::info('Midtrans Notification Processed', $result);
         
         // Find order by invoice number
         $order = Order::where('invoice_no', $result['order_id'])->first();
         
         if ($order) {
+            Log::info('Order found for notification', [
+                'order_id' => $order->id,
+                'invoice_no' => $order->invoice_no,
+                'old_status' => $order->status,
+                'new_status' => $result['status'],
+            ]);
+            
             // Update order status
             $order->update(['status' => $result['status']]);
             
@@ -178,7 +194,11 @@ class PaymentController extends Controller
                     'status' => 'success',
                     'paid_at' => now(),
                 ]);
+                
+                Log::info('Payment recorded for order', ['order_id' => $order->id]);
             }
+        } else {
+            Log::warning('Order not found for notification', ['order_id' => $result['order_id']]);
         }
 
         return response()->json(['status' => 'OK']);
@@ -192,16 +212,25 @@ class PaymentController extends Controller
      */
     public function success(Request $request)
     {
+        Log::info('Payment success redirect called', [
+            'all_params' => $request->all(),
+            'order_id' => $request->get('order_id'),
+            'status_code' => $request->get('status_code'),
+            'transaction_status' => $request->get('transaction_status'),
+        ]);
+        
         $orderId = $request->get('order_id');
         
         if ($orderId) {
             $order = Order::where('invoice_no', $orderId)->first();
             
             if ($order && $order->status === 'paid') {
+                Log::info('Redirecting to payment success page', ['order_id' => $order->id]);
                 return redirect()->route('payment.success', $order->id);
             }
         }
         
+        Log::info('Redirecting to dashboard with info message');
         return redirect()->route('public.dashboard')->with('info', 'Payment status is being processed.');
     }
 

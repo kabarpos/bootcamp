@@ -18,24 +18,29 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 Route::get('/bootcamps', [PublicController::class, 'bootcamps'])->name('public.bootcamps');
 Route::get('/bootcamp/{slug}', [PublicController::class, 'bootcamp'])->name('public.bootcamp');
-Route::get('/user/dashboard', [PublicController::class, 'dashboard'])->name('public.dashboard');
-Route::get('/bootcamp/{slug}/resources', [PublicController::class, 'resources'])->name('public.resources');
-Route::get('/bootcamp/{slug}/assessments', [PublicController::class, 'assessments'])->name('public.assessments');
-Route::get('/bootcamp/{slug}/projects', [PublicController::class, 'projects'])->name('public.projects');
 
-// Blog post route
-Route::get('/blog/{slug}', function($slug) {
-    $post = \App\Models\BlogPost::where('slug', $slug)->firstOrFail();
-    return view('public.blog-post', compact('post'));
-})->name('public.blog.post');
-
-// Payment routes
-Route::get('/bootcamp/{slug}/enroll', [PaymentController::class, 'enroll'])->name('payment.enroll')->middleware(['auth', 'verified']);
-Route::post('/bootcamp/{slug}/enroll', [PaymentController::class, 'processEnrollment'])->name('payment.process')->middleware(['auth', 'verified']);
-Route::get('/checkout/{orderId}', [PaymentController::class, 'checkout'])->name('payment.checkout')->middleware(['auth', 'verified']);
-Route::get('/payment/success/{orderId}', [PaymentController::class, 'successPage'])->name('payment.success')->middleware(['auth', 'verified']);
-Route::get('/payment/failure', [PaymentController::class, 'failure'])->name('payment.failure')->middleware(['auth', 'verified']);
-Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
+// Protected routes that require email verification
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/user/dashboard', [PublicController::class, 'dashboard'])->name('public.dashboard');
+    Route::get('/bootcamp/{slug}/resources', [PublicController::class, 'resources'])->name('public.resources');
+    Route::get('/bootcamp/{slug}/assessments', [PublicController::class, 'assessments'])->name('public.assessments');
+    Route::get('/bootcamp/{slug}/projects', [PublicController::class, 'projects'])->name('public.projects');
+    
+    // Blog post route
+    Route::get('/blog/{slug}', function($slug) {
+        $post = \App\Models\BlogPost::where('slug', $slug)->firstOrFail();
+        return view('public.blog-post', compact('post'));
+    })->name('public.blog.post');
+    
+    // Payment routes
+    Route::get('/bootcamp/{slug}/enroll', [PaymentController::class, 'enroll'])->name('payment.enroll');
+    Route::post('/bootcamp/{slug}/enroll', [PaymentController::class, 'processEnrollment'])->name('payment.process');
+    Route::get('/checkout/{orderId}', [PaymentController::class, 'checkout'])->name('payment.checkout');
+    Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success.redirect');
+    Route::get('/payment/success/{orderId}', [PaymentController::class, 'successPage'])->name('payment.success');
+    Route::get('/payment/failure', [PaymentController::class, 'failure'])->name('payment.failure');
+    Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
+});
 
 // Admin routes
 Route::middleware(['auth:sanctum', 'verified', 'role:admin'])->group(function () {
@@ -101,6 +106,12 @@ Route::middleware(['auth:sanctum', 'verified', 'role:admin'])->group(function ()
         'update' => 'admin.users.update',
         'destroy' => 'admin.users.destroy',
     ]);
+    
+    // Custom user actions
+    Route::post('/admin/users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('admin.users.verify-email');
+    Route::post('/admin/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('admin.users.reset-password');
+    Route::post('/admin/users/{user}/assign-role', [UserController::class, 'assignRole'])->name('admin.users.assign-role');
+    Route::post('/admin/users/{user}/remove-role', [UserController::class, 'removeRole'])->name('admin.users.remove-role');
     
     Route::resource('/admin/roles', RoleController::class)->names([
         'index' => 'admin.roles.index',

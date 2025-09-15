@@ -50,6 +50,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollments</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -71,6 +72,17 @@
                                 @endforeach
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($user->hasVerifiedEmail())
+                                    <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                                        Verified
+                                    </span>
+                                @else
+                                    <span class="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        Unverified
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $user->enrollments_count }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -78,12 +90,25 @@
                                    class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
                                 <a href="{{ route('admin.users.edit', $user) }}" 
                                    class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                                
+                                @if(!$user->hasVerifiedEmail())
+                                    <form action="{{ route('admin.users.verify-email', $user) }}" 
+                                          method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="text-green-600 hover:text-green-900 mr-3 cursor-pointer"
+                                                onclick="return confirm('Apakah Anda yakin ingin memverifikasi email user ini?')">
+                                            Verify Email
+                                        </button>
+                                    </form>
+                                @endif
+                                
                                 <form action="{{ route('admin.users.destroy', $user) }}" 
                                       method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 
-                                            class="text-red-600 hover:text-red-900"
+                                            class="text-red-600 hover:text-red-900 cursor-pointer"
                                             onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                         Delete
                                     </button>
@@ -92,7 +117,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                                 Tidak ada user ditemukan.
                             </td>
                         </tr>

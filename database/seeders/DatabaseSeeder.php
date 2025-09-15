@@ -22,10 +22,11 @@ class DatabaseSeeder extends Seeder
         // Run the TestDataSeeder to create sample data
         $this->call(TestDataSeeder::class);
         
-        // Create a test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Note: Test users should be created manually or through registration, not automatically
+        // The following line has been removed for security reasons:
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }

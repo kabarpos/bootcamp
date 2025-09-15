@@ -9,6 +9,16 @@
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
                 Edit User
             </a>
+            @if(!$user->hasVerifiedEmail())
+                <form action="{{ route('admin.users.verify-email', $user) }}" method="POST">
+                    @csrf
+                    <button type="submit" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 cursor-pointer"
+                            onclick="return confirm('Apakah Anda yakin ingin memverifikasi email user ini?')">
+                        Verify Email
+                    </button>
+                </form>
+            @endif
             <a href="{{ route('admin.users.index') }}" 
                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
                 Kembali

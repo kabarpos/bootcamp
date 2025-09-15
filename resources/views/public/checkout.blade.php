@@ -110,22 +110,39 @@
         data-client-key="{{ config('midtrans.client_key') }}"></script>
 
 <script type="text/javascript">
-    document.getElementById('pay-button').onclick = function(){
-        // Trigger snap popup. @snap_token_id = SNAP_TOKEN from backend
-        snap.pay('{{ $snapToken }}', {
-            onSuccess: function(result){
-                window.location.href = '{{ route("payment.success", $order->id) }}';
-            },
-            onPending: function(result){
-                window.location.href = '{{ route("payment.success", $order->id) }}';
-            },
-            onError: function(result){
-                window.location.href = '{{ route("payment.failure") }}';
-            },
-            onClose: function(){
-                alert('You closed the popup without finishing the payment');
+    document.addEventListener('DOMContentLoaded', function() {
+        var payButton = document.getElementById('pay-button');
+        if (payButton) {
+            // Check if snap token is available
+            var snapToken = '{{ $snapToken }}';
+            if (!snapToken || snapToken === '') {
+                payButton.disabled = true;
+                payButton.textContent = 'Payment Unavailable';
+                payButton.classList.add('bg-gray-400', 'hover:bg-gray-400');
+                alert('Payment initialization failed. Please contact support.');
+                return;
             }
-        });
-    };
+            
+            payButton.onclick = function(){
+                // Trigger snap popup. @snap_token_id = SNAP_TOKEN from backend
+                snap.pay(snapToken, {
+                    onSuccess: function(result){
+                        window.location.href = '{{ route("payment.success", $order->id) }}';
+                    },
+                    onPending: function(result){
+                        window.location.href = '{{ route("payment.success", $order->id) }}';
+                    },
+                    onError: function(result){
+                        window.location.href = '{{ route("payment.failure") }}';
+                    },
+                    onClose: function(){
+                        alert('You closed the popup without finishing the payment');
+                    }
+                });
+            };
+        } else {
+            console.error('Pay button not found');
+        }
+    });
 </script>
 @endsection
