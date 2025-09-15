@@ -29,6 +29,7 @@
     @endif
     
     <x-public.program-overview-section>
+        <!-- Program Overview Section Start -->
         <x-public.program-overview-card title="Curriculum Highlights">
             <x-public.checklist>
                 <x-public.checklist-item content="Hands-on projects with real-world applications" />
@@ -122,7 +123,33 @@
                 @endif
             </x-public.program-details>
         </x-public.program-overview-card>
+        
+        <x-public.program-overview-card title="Enrollment">
+            <div class="flex justify-center py-6" style="background-color: #e3f2fd; border: 2px solid #2196f3; border-radius: 8px; padding: 10px;">
+                @auth
+                    @if(isset($bootcamp))
+                        <x-public.button href="{{ route('payment.enroll', $bootcamp->slug) }}" variant="primary" class="px-8 py-3 text-lg">
+                            Enroll Now
+                        </x-public.button>
+                    @else
+                        <p class="text-muted-foreground">Bootcamp not available</p>
+                    @endif
+                @else
+                    <x-public.button href="{{ route('login') }}" variant="primary" class="px-8 py-3 text-lg">
+                        Login to Enroll
+                    </x-public.button>
+                @endauth
+            </div>
+        </x-public.program-overview-card>
     </x-public.program-overview-section>
+        <!-- Program Overview Section End -->
+    
+    <!-- Debug: Enrollment section marker -->
+    <div style="background: #ffeb3b; color: #000; padding: 10px; text-align: center; margin: 20px 0;">
+        <strong>ENROLLMENT SECTION MARKER</strong> - If you can see this, the enrollment section should be above
+        <br><small>Auth check: {{ \Illuminate\Support\Facades\Auth::check() ? 'Logged in' : 'Not logged in' }}</small>
+        <br><small>Bootcamp isset: {{ isset($bootcamp) ? 'Yes' : 'No' }}</small>
+    </div>
     
     <x-public.syllabus-section>
         <x-public.syllabus-module title="Module 1: Fundamentals (Weeks 1-2)">
@@ -231,43 +258,7 @@
         />
     </x-public.testimonials-section>
     
-    <x-public.pricing-section>
-        <x-public.pricing-card
-            title="Upfront Payment"
-            price="$2,999"
-            description="Pay in full and save $300"
-        >
-            <x-public.pricing-feature feature="Full access to all course materials" />
-            <x-public.pricing-feature feature="Career services included" />
-            <x-public.pricing-feature feature="Job placement assistance" />
-        </x-public.pricing-card>
-        
-        <x-public.pricing-card
-            title="Payment Plan"
-            price="$199"
-            frequency="month"
-            description="Flexible monthly payments"
-            featured="true"
-        >
-            <x-public.pricing-feature feature="Full access to all course materials" />
-            <x-public.pricing-feature feature="Career services included" />
-            <x-public.pricing-feature feature="Job placement assistance" />
-            <x-public.pricing-feature feature="0% interest financing" />
-        </x-public.pricing-card>
-        
-        <x-public.pricing-card
-            title="ISA"
-            price="15% of income"
-            frequency="for 2 years"
-            description="Income Share Agreement"
-        >
-            <x-public.pricing-feature feature="Full access to all course materials" />
-            <x-public.pricing-feature feature="Career services included" />
-            <x-public.pricing-feature feature="Job placement assistance" />
-            <x-public.pricing-feature feature="Payment only after employment" />
-        </x-public.pricing-card>
-    </x-public.pricing-section>
-    
+
     <x-public.cta-section />
 </div>
 @endsection

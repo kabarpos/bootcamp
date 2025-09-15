@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\BootcampController;
@@ -17,7 +18,7 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 Route::get('/bootcamps', [PublicController::class, 'bootcamps'])->name('public.bootcamps');
 Route::get('/bootcamp/{slug}', [PublicController::class, 'bootcamp'])->name('public.bootcamp');
-Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('public.dashboard');
+Route::get('/user/dashboard', [PublicController::class, 'dashboard'])->name('public.dashboard');
 Route::get('/bootcamp/{slug}/resources', [PublicController::class, 'resources'])->name('public.resources');
 Route::get('/bootcamp/{slug}/assessments', [PublicController::class, 'assessments'])->name('public.assessments');
 Route::get('/bootcamp/{slug}/projects', [PublicController::class, 'projects'])->name('public.projects');
@@ -27,6 +28,14 @@ Route::get('/blog/{slug}', function($slug) {
     $post = \App\Models\BlogPost::where('slug', $slug)->firstOrFail();
     return view('public.blog-post', compact('post'));
 })->name('public.blog.post');
+
+// Payment routes
+Route::get('/bootcamp/{slug}/enroll', [PaymentController::class, 'enroll'])->name('payment.enroll')->middleware(['auth', 'verified']);
+Route::post('/bootcamp/{slug}/enroll', [PaymentController::class, 'processEnrollment'])->name('payment.process')->middleware(['auth', 'verified']);
+Route::get('/checkout/{orderId}', [PaymentController::class, 'checkout'])->name('payment.checkout')->middleware(['auth', 'verified']);
+Route::get('/payment/success/{orderId}', [PaymentController::class, 'successPage'])->name('payment.success')->middleware(['auth', 'verified']);
+Route::get('/payment/failure', [PaymentController::class, 'failure'])->name('payment.failure')->middleware(['auth', 'verified']);
+Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
 
 // Admin routes
 Route::middleware(['auth:sanctum', 'verified', 'role:admin'])->group(function () {
