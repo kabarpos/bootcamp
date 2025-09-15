@@ -30,41 +30,59 @@
     </x-public.features-section>
     
     <x-public.bootcamps-section>
-        <x-public.bootcamp-card 
-            image="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
-            alt="Web Development Bootcamp"
-            category="Web Development"
-            categoryLink="#"
-            title="Full-Stack Web Development"
-            titleLink="#"
-            description="Master both frontend and backend technologies to become a complete web developer."
-            duration="12 Weeks"
-            price="Starting at $2,999"
-        />
-        
-        <x-public.bootcamp-card 
-            image="https://images.unsplash.com/photo-1550439062-609e1531270e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
-            alt="Data Science Bootcamp"
-            category="Data Science"
-            categoryLink="#"
-            title="Data Science & AI"
-            titleLink="#"
-            description="Learn to analyze data, build machine learning models, and work with AI technologies."
-            duration="16 Weeks"
-            price="Starting at $3,499"
-        />
-        
-        <x-public.bootcamp-card 
-            image="https://images.unsplash.com/photo-1558369979-7a0e95b4e2d9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
-            alt="UX/UI Design Bootcamp"
-            category="Design"
-            categoryLink="#"
-            title="UX/UI Design"
-            titleLink="#"
-            description="Create beautiful and functional user experiences with modern design principles."
-            duration="10 Weeks"
-            price="Starting at $2,499"
-        />
+        @if(isset($bootcamps))
+            @foreach($bootcamps as $bootcamp)
+                <x-public.bootcamp-card 
+                    image="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
+                    alt="{{ $bootcamp->title }}"
+                    category="{{ $bootcamp->categories->first()->name ?? 'Web Development' }}"
+                    categoryLink="#"
+                    title="{{ $bootcamp->title }}"
+                    titleLink="{{ route('public.bootcamp', $bootcamp->slug) }}"
+                    description="{{ $bootcamp->short_desc }}"
+                    duration="{{ $bootcamp->duration_hours }} hours"
+                    price="Starting at Rp {{ number_format($bootcamp->base_price, 0, ',', '.') }}"
+                    level="{{ ucfirst($bootcamp->level) }}"
+                />
+            @endforeach
+        @else
+            {{-- Fallback to static data --}}
+            <x-public.bootcamp-card 
+                image="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
+                alt="Web Development Bootcamp"
+                category="Web Development"
+                categoryLink="#"
+                title="Full-Stack Web Development"
+                titleLink="#"
+                description="Master both frontend and backend technologies to become a complete web developer."
+                duration="12 Weeks"
+                price="Starting at $2,999"
+            />
+            
+            <x-public.bootcamp-card 
+                image="https://images.unsplash.com/photo-1550439062-609e1531270e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
+                alt="Data Science Bootcamp"
+                category="Data Science"
+                categoryLink="#"
+                title="Data Science & AI"
+                titleLink="#"
+                description="Learn to analyze data, build machine learning models, and work with AI technologies."
+                duration="16 Weeks"
+                price="Starting at $3,499"
+            />
+            
+            <x-public.bootcamp-card 
+                image="https://images.unsplash.com/photo-1558369979-7a0e95b4e2d9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
+                alt="UX/UI Design Bootcamp"
+                category="Design"
+                categoryLink="#"
+                title="UX/UI Design"
+                titleLink="#"
+                description="Create beautiful and functional user experiences with modern design principles."
+                duration="10 Weeks"
+                price="Starting at $2,499"
+            />
+        @endif
     </x-public.bootcamps-section>
     
     <x-public.testimonials-section>

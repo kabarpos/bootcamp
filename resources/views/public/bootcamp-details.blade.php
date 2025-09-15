@@ -2,17 +2,31 @@
 
 @section('content')
 <div class="min-h-screen bg-background">
-    <x-public.breadcrumb :items="[
-        ['label' => 'Home', 'url' => route('public.homepage')],
-        ['label' => 'Bootcamps', 'url' => route('public.bootcamps')],
-        ['label' => ucfirst(str_replace('-', ' ', $slug)), 'url' => '#']
-    ]" />
-    
-    <x-public.hero-section 
-        titleLine1="{{ ucfirst(str_replace('-', ' ', $slug)) }}"
-        titleLine2="Bootcamp Program"
-        description="An intensive program designed to transform you into a professional in just a few weeks."
-    />
+    @if(isset($bootcamp))
+        <x-public.breadcrumb :items="[
+            ['label' => 'Home', 'url' => route('public.homepage')],
+            ['label' => 'Bootcamps', 'url' => route('public.bootcamps')],
+            ['label' => $bootcamp->title, 'url' => '#']
+        ]" />
+        
+        <x-public.hero-section 
+            titleLine1="{{ $bootcamp->title }}"
+            titleLine2="Bootcamp Program"
+            description="{{ $bootcamp->short_desc }}"
+        />
+    @else
+        <x-public.breadcrumb :items="[
+            ['label' => 'Home', 'url' => route('public.homepage')],
+            ['label' => 'Bootcamps', 'url' => route('public.bootcamps')],
+            ['label' => ucfirst(str_replace('-', ' ', $slug)), 'url' => '#']
+        ]" />
+        
+        <x-public.hero-section 
+            titleLine1="{{ ucfirst(str_replace('-', ' ', $slug)) }}"
+            titleLine2="Bootcamp Program"
+            description="An intensive program designed to transform you into a professional in just a few weeks."
+        />
+    @endif
     
     <x-public.program-overview-section>
         <x-public.program-overview-card title="Curriculum Highlights">
@@ -27,41 +41,85 @@
         
         <x-public.program-overview-card title="Program Details">
             <x-public.program-details>
-                <x-public.program-detail-item 
-                    label="Duration"
-                    value="12 Weeks"
-                />
-                
-                <x-public.program-detail-item 
-                    label="Format"
-                    value="Full-time, In-person"
-                    class="border-t border-border"
-                />
-                
-                <x-public.program-detail-item 
-                    label="Prerequisites"
-                    value="Basic computer skills"
-                    class="border-t border-border"
-                />
-                
-                <x-public.program-detail-item 
-                    label="Certification"
-                    value="Yes"
-                    class="border-t border-border"
-                />
-                
-                <x-public.program-detail-item 
-                    label="Cost"
-                    value="$2,999"
-                    valueClass="text-sm font-bold text-foreground"
-                    class="border-t border-border"
-                />
-                
-                <x-public.program-detail-item 
-                    label="Next Start Date"
-                    value="January 15, 2026"
-                    class="border-t border-border"
-                />
+                @if(isset($bootcamp))
+                    <x-public.program-detail-item 
+                        label="Duration"
+                        value="{{ $bootcamp->duration_hours }} hours"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Mode"
+                        value="{{ ucfirst($bootcamp->mode) }}"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Level"
+                        value="{{ ucfirst($bootcamp->level) }}"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Prerequisites"
+                        value="Basic computer skills"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Certification"
+                        value="Yes"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Cost"
+                        value="Rp {{ number_format($bootcamp->base_price, 0, ',', '.') }}"
+                        valueClass="text-sm font-bold text-foreground"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Categories"
+                        value="{{ $bootcamp->categories->pluck('name')->implode(', ') }}"
+                        class="border-t border-border"
+                    />
+                @else
+                    <x-public.program-detail-item 
+                        label="Duration"
+                        value="12 Weeks"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Format"
+                        value="Full-time, In-person"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Prerequisites"
+                        value="Basic computer skills"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Certification"
+                        value="Yes"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Cost"
+                        value="$2,999"
+                        valueClass="text-sm font-bold text-foreground"
+                        class="border-t border-border"
+                    />
+                    
+                    <x-public.program-detail-item 
+                        label="Next Start Date"
+                        value="January 15, 2026"
+                        class="border-t border-border"
+                    />
+                @endif
             </x-public.program-details>
         </x-public.program-overview-card>
     </x-public.program-overview-section>
@@ -106,15 +164,27 @@
     <div class="py-12 bg-card/80 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-center space-x-4 flex-wrap">
-                <x-public.button href="{{ route('public.resources', $slug) }}" variant="secondary" class="mb-2">
-                    View Additional Resources
-                </x-public.button>
-                <x-public.button href="{{ route('public.assessments', $slug) }}" variant="secondary" class="mb-2">
-                    View Assessments
-                </x-public.button>
-                <x-public.button href="{{ route('public.projects', $slug) }}" variant="secondary" class="mb-2">
-                    View Projects
-                </x-public.button>
+                @if(isset($bootcamp))
+                    <x-public.button href="{{ route('public.resources', $bootcamp->slug) }}" variant="secondary" class="mb-2">
+                        View Additional Resources
+                    </x-public.button>
+                    <x-public.button href="{{ route('public.assessments', $bootcamp->slug) }}" variant="secondary" class="mb-2">
+                        View Assessments
+                    </x-public.button>
+                    <x-public.button href="{{ route('public.projects', $bootcamp->slug) }}" variant="secondary" class="mb-2">
+                        View Projects
+                    </x-public.button>
+                @else
+                    <x-public.button href="{{ route('public.resources', $slug) }}" variant="secondary" class="mb-2">
+                        View Additional Resources
+                    </x-public.button>
+                    <x-public.button href="{{ route('public.assessments', $slug) }}" variant="secondary" class="mb-2">
+                        View Assessments
+                    </x-public.button>
+                    <x-public.button href="{{ route('public.projects', $slug) }}" variant="secondary" class="mb-2">
+                        View Projects
+                    </x-public.button>
+                @endif
             </div>
         </div>
     </div>

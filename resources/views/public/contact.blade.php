@@ -14,7 +14,7 @@
             <div class="lg:grid lg:grid-cols-3 lg:gap-8">
                 <x-public.contact-info-section>
                     <x-public.contact-info-item 
-                        line1="+1 (555) 123-4567"
+                        line1="{{ $contactInfo['phone'] }}"
                         line2="Mon-Fri 9am to 5pm (EST)"
                     >
                         <x-slot name="icon">
@@ -25,7 +25,7 @@
                     </x-public.contact-info-item>
                     
                     <x-public.contact-info-item 
-                        line1="info@bootcamp.com"
+                        line1="{{ $contactInfo['email'] }}"
                     >
                         <x-slot name="icon">
                             <svg class="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,8 +35,7 @@
                     </x-public.contact-info-item>
                     
                     <x-public.contact-info-item 
-                        line1="123 Tech Street"
-                        line2="San Francisco, CA 94103"
+                        line1="{{ $contactInfo['address'] }}"
                     >
                         <x-slot name="icon">
                             <svg class="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

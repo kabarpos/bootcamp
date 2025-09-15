@@ -1,18 +1,110 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\BootcampController;
+use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\EnrollmentController;
+use App\Http\Controllers\Admin\BatchController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
 
-// Public Routes
-Route::get('/', [App\Http\Controllers\PublicController::class, 'index'])->name('public.homepage');
-Route::get('/about', [App\Http\Controllers\PublicController::class, 'about'])->name('public.about');
-Route::get('/contact', [App\Http\Controllers\PublicController::class, 'contact'])->name('public.contact');
-Route::get('/bootcamps', [App\Http\Controllers\PublicController::class, 'bootcamps'])->name('public.bootcamps');
-Route::get('/bootcamps/{slug}', [App\Http\Controllers\PublicController::class, 'bootcamp'])->name('public.bootcamp');
-Route::get('/bootcamps/{slug}/resources', [App\Http\Controllers\PublicController::class, 'resources'])->name('public.resources');
-Route::get('/bootcamps/{slug}/assessments', [App\Http\Controllers\PublicController::class, 'assessments'])->name('public.assessments');
-Route::get('/bootcamps/{slug}/projects', [App\Http\Controllers\PublicController::class, 'projects'])->name('public.projects');
-Route::get('/dashboard', [App\Http\Controllers\PublicController::class, 'dashboard'])->name('public.dashboard');
+// Public routes
+Route::get('/', [PublicController::class, 'index'])->name('public.homepage');
+Route::get('/about', [PublicController::class, 'about'])->name('public.about');
+Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
+Route::get('/bootcamps', [PublicController::class, 'bootcamps'])->name('public.bootcamps');
+Route::get('/bootcamp/{slug}', [PublicController::class, 'bootcamp'])->name('public.bootcamp');
+Route::get('/dashboard', [PublicController::class, 'dashboard'])->name('public.dashboard');
+Route::get('/bootcamp/{slug}/resources', [PublicController::class, 'resources'])->name('public.resources');
+Route::get('/bootcamp/{slug}/assessments', [PublicController::class, 'assessments'])->name('public.assessments');
+Route::get('/bootcamp/{slug}/projects', [PublicController::class, 'projects'])->name('public.projects');
 
+// Blog post route
+Route::get('/blog/{slug}', function($slug) {
+    $post = \App\Models\BlogPost::where('slug', $slug)->firstOrFail();
+    return view('public.blog-post', compact('post'));
+})->name('public.blog.post');
+
+// Admin routes
+Route::middleware(['auth:sanctum', 'verified', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // Resource routes for admin controllers with proper naming
+    Route::resource('/admin/orders', OrderController::class)->names([
+        'index' => 'admin.orders.index',
+        'create' => 'admin.orders.create',
+        'store' => 'admin.orders.store',
+        'show' => 'admin.orders.show',
+        'edit' => 'admin.orders.edit',
+        'update' => 'admin.orders.update',
+        'destroy' => 'admin.orders.destroy',
+    ]);
+    
+    Route::resource('/admin/bootcamps', BootcampController::class)->names([
+        'index' => 'admin.bootcamps.index',
+        'create' => 'admin.bootcamps.create',
+        'store' => 'admin.bootcamps.store',
+        'show' => 'admin.bootcamps.show',
+        'edit' => 'admin.bootcamps.edit',
+        'update' => 'admin.bootcamps.update',
+        'destroy' => 'admin.bootcamps.destroy',
+    ]);
+    
+    Route::resource('/admin/certificates', CertificateController::class)->names([
+        'index' => 'admin.certificates.index',
+        'create' => 'admin.certificates.create',
+        'store' => 'admin.certificates.store',
+        'show' => 'admin.certificates.show',
+        'edit' => 'admin.certificates.edit',
+        'update' => 'admin.certificates.update',
+        'destroy' => 'admin.certificates.destroy',
+    ]);
+    
+    Route::resource('/admin/enrollments', EnrollmentController::class)->names([
+        'index' => 'admin.enrollments.index',
+        'create' => 'admin.enrollments.create',
+        'store' => 'admin.enrollments.store',
+        'show' => 'admin.enrollments.show',
+        'edit' => 'admin.enrollments.edit',
+        'update' => 'admin.enrollments.update',
+        'destroy' => 'admin.enrollments.destroy',
+    ]);
+    
+    Route::resource('/admin/batches', BatchController::class)->names([
+        'index' => 'admin.batches.index',
+        'create' => 'admin.batches.create',
+        'store' => 'admin.batches.store',
+        'show' => 'admin.batches.show',
+        'edit' => 'admin.batches.edit',
+        'update' => 'admin.batches.update',
+        'destroy' => 'admin.batches.destroy',
+    ]);
+    
+    Route::resource('/admin/users', UserController::class)->names([
+        'index' => 'admin.users.index',
+        'create' => 'admin.users.create',
+        'store' => 'admin.users.store',
+        'show' => 'admin.users.show',
+        'edit' => 'admin.users.edit',
+        'update' => 'admin.users.update',
+        'destroy' => 'admin.users.destroy',
+    ]);
+    
+    Route::resource('/admin/roles', RoleController::class)->names([
+        'index' => 'admin.roles.index',
+        'create' => 'admin.roles.create',
+        'store' => 'admin.roles.store',
+        'show' => 'admin.roles.show',
+        'edit' => 'admin.roles.edit',
+        'update' => 'admin.roles.update',
+        'destroy' => 'admin.roles.destroy',
+    ]);
+});
+
+// Auth routes
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -21,32 +113,4 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-});
-
-// Admin Routes
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-    'role:admin',
-])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-    
-    // Bootcamp Management
-    Route::resource('bootcamps', App\Http\Controllers\Admin\BootcampController::class);
-    Route::resource('batches', App\Http\Controllers\Admin\BatchController::class);
-    
-    // User Management
-    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
-    Route::resource('roles', App\Http\Controllers\Admin\RoleController::class);
-    
-    // Other Resources
-    Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);
-    Route::resource('enrollments', App\Http\Controllers\Admin\EnrollmentController::class);
-    Route::resource('certificates', App\Http\Controllers\Admin\CertificateController::class);
-    
-    // Certificate custom actions
-    Route::patch('certificates/{certificate}/issue', [App\Http\Controllers\Admin\CertificateController::class, 'issue'])->name('certificates.issue');
-    Route::patch('certificates/{certificate}/revoke', [App\Http\Controllers\Admin\CertificateController::class, 'revoke'])->name('certificates.revoke');
-    Route::get('certificates/{certificate}/download', [App\Http\Controllers\Admin\CertificateController::class, 'download'])->name('certificates.download');
 });

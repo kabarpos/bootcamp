@@ -48,33 +48,45 @@
     </div>
     
     <x-public.stats-section>
-        <x-public.stats-card number="5000+" label="Graduates" />
-        <x-public.stats-card number="95%" label="Job Placement Rate" />
-        <x-public.stats-card number="25+" label="Hiring Partners" />
-        <x-public.stats-card number="100+" label="Mentors" />
+        <x-public.stats-card number="{{ $stats['graduates'] }}" label="Graduates" />
+        <x-public.stats-card number="{{ $stats['placement_rate'] }}" label="Job Placement Rate" />
+        <x-public.stats-card number="{{ $stats['partners'] }}" label="Hiring Partners" />
+        <x-public.stats-card number="{{ $stats['mentors'] }}" label="Mentors" />
     </x-public.stats-section>
     
     <x-public.team-section>
-        <x-public.team-member 
-            image="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            name="John Smith"
-            position="CEO & Founder"
-            bio="Former software engineer at Google with 15+ years of industry experience."
-        />
-        
-        <x-public.team-member 
-            image="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            name="Michael Rodriguez"
-            position="CTO"
-            bio="Full-stack developer and curriculum architect with expertise in modern web technologies."
-        />
-        
-        <x-public.team-member 
-            image="https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            name="Sarah Johnson"
-            position="Head of Education"
-            bio="Educational psychologist with a passion for creating effective learning experiences."
-        />
+        @if(isset($teamMembers) && $teamMembers->count() > 0)
+            @foreach($teamMembers as $member)
+                <x-public.team-member 
+                    image="{{ $member->photo_url ?? 'https://images.unsplash.com/photo-' . rand(1, 9) . '?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }}"
+                    name="{{ $member->name }}"
+                    position="{{ $member->headline ?? 'Team Member' }}"
+                    bio="{{ $member->bio ?? 'Experienced professional in the tech industry.' }}"
+                />
+            @endforeach
+        @else
+            {{-- Fallback to static data --}}
+            <x-public.team-member 
+                image="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                name="John Smith"
+                position="CEO & Founder"
+                bio="Former software engineer at Google with 15+ years of industry experience."
+            />
+            
+            <x-public.team-member 
+                image="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                name="Michael Rodriguez"
+                position="CTO"
+                bio="Full-stack developer and curriculum architect with expertise in modern web technologies."
+            />
+            
+            <x-public.team-member 
+                image="https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                name="Sarah Johnson"
+                position="Head of Education"
+                bio="Educational psychologist with a passion for creating effective learning experiences."
+            />
+        @endif
     </x-public.team-section>
     
     <x-public.testimonials-section>
