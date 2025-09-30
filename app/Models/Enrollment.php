@@ -35,6 +35,14 @@ class Enrollment extends Model
     }
 
     /**
+     * Get the referral user (if any).
+     */
+    public function referral()
+    {
+        return $this->belongsTo(User::class, 'referral_id');
+    }
+
+    /**
      * Get the orders for the enrollment.
      */
     public function orders()
@@ -51,11 +59,19 @@ class Enrollment extends Model
     }
 
     /**
-     * Scope for confirmed enrollments.
+     * Scope for confirmed enrollments (includes completed enrollments).
      */
     public function scopeConfirmed($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->whereIn('status', ['confirmed', 'completed']);
+    }
+
+    /**
+     * Scope for completed enrollments.
+     */
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
     }
 
     /**

@@ -20,7 +20,7 @@ class BatchFactory extends Factory
     {
         $startDate = fake()->dateTimeBetween('now', '+6 months');
         $endDate = fake()->dateTimeBetween($startDate->format('Y-m-d'), '+1 year');
-        
+
         return [
             'bootcamp_id' => Bootcamp::factory(),
             'code' => 'BATCH-' . fake()->unique()->regexify('[A-Z0-9]{6}'),
@@ -33,7 +33,7 @@ class BatchFactory extends Factory
             'venue_address' => fake()->address(),
             'meeting_link' => fake()->optional(0.5)->url(),
             'meeting_platform' => fake()->optional(0.5)->randomElement(['Zoom', 'Google Meet', 'Microsoft Teams']),
-            'status' => fake()->randomElement(['upcoming', 'ongoing', 'finished', 'canceled']),
+            'status' => fake()->randomElement(['upcoming', 'ongoing', 'completed', 'cancelled']),
             'capacity' => fake()->numberBetween(10, 50),
         ];
     }

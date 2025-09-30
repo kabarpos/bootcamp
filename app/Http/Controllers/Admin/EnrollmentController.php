@@ -18,7 +18,7 @@ class EnrollmentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Enrollment::with(['user', 'batch', 'orders']);
+        $query = Enrollment::with(['user', 'batch.bootcamp', 'orders']);
 
         // Search functionality
         if ($request->filled('search')) {
@@ -50,7 +50,7 @@ class EnrollmentController extends Controller
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(15);
-        $batches = Batch::orderBy('code')->get();
+        $batches = Batch::with('bootcamp')->orderBy('code')->get();
         $users = User::orderBy('email')->get();
 
         return view('admin.enrollments.index', compact('enrollments', 'batches', 'users'));
@@ -62,7 +62,7 @@ class EnrollmentController extends Controller
     public function create()
     {
         $users = User::orderBy('email')->get();
-        $batches = Batch::where('status', 'active')->orderBy('code')->get();
+        $batches = Batch::active()->with('bootcamp')->orderBy('code')->get();
         
         return view('admin.enrollments.create', compact('users', 'batches'));
     }
@@ -70,11 +70,11 @@ class EnrollmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreEnrollmentRequest $request)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'batch_id' => 'required|exists:batches,id',
+            'batch_id' => 'required|exists:batch,id',
             'referral_id' => 'nullable|exists:users,id',
             'status' => 'required|in:pending,confirmed,cancelled,completed'
         ]);
@@ -96,7 +96,7 @@ class EnrollmentController extends Controller
                                           ->where('status', '!=', 'cancelled')
                                           ->count();
 
-            if ($batch->max_participants && $currentEnrollments >= $batch->max_participants) {
+            if ($batch->capacity && $currentEnrollments >= $batch->capacity) {
                 return back()->withErrors(['batch_id' => 'Batch sudah penuh.'])
                            ->withInput();
             }
@@ -135,7 +135,7 @@ class EnrollmentController extends Controller
     public function edit(Enrollment $enrollment)
     {
         $users = User::orderBy('email')->get();
-        $batches = Batch::orderBy('code')->get();
+        $batches = Batch::with('bootcamp')->orderBy('code')->get();
         
         return view('admin.enrollments.edit', compact('enrollment', 'users', 'batches'));
     }
@@ -143,11 +143,11 @@ class EnrollmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Enrollment $enrollment)
+    public function update(UpdateEnrollmentRequest $request, Enrollment $enrollment)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'batch_id' => 'required|exists:batches,id',
+            'batch_id' => 'required|exists:batch,id',
             'referral_id' => 'nullable|exists:users,id',
             'status' => 'required|in:pending,confirmed,cancelled,completed'
         ]);
@@ -171,13 +171,18 @@ class EnrollmentController extends Controller
                                               ->where('status', '!=', 'cancelled')
                                               ->count();
 
-                if ($batch->max_participants && $currentEnrollments >= $batch->max_participants) {
+                if ($batch->capacity && $currentEnrollments >= $batch->capacity) {
                     return back()->withErrors(['batch_id' => 'Batch sudah penuh.'])
                                ->withInput();
                 }
             }
 
-            $enrollment->update($request->all());
+            $enrollment->update([
+                'user_id' => $request->user_id,
+                'batch_id' => $request->batch_id,
+                'referral_id' => $request->referral_id,
+                'status' => $request->status,
+            ]);
 
             Log::info('Enrollment updated', [
                 'enrollment_id' => $enrollment->id,
@@ -371,10 +376,10 @@ class EnrollmentController extends Controller
                     $enrollment->id,
                     $enrollment->user->name,
                     $enrollment->user->email,
-                    $enrollment->batch->bootcamp->name ?? '',
-                    $enrollment->batch->name,
+                    $enrollment->batch->bootcamp->title ?? '',
+                    $enrollment->batch->code,
                     $enrollment->status,
-                    $enrollment->referral_id ? User::find($enrollment->referral_id)->name ?? '' : '',
+                    optional($enrollment->referral)->name ?? '',
                     $enrollment->created_at->format('Y-m-d H:i:s'),
                     $enrollment->updated_at->format('Y-m-d H:i:s')
                 ]);
@@ -413,3 +418,17 @@ class EnrollmentController extends Controller
         return response()->json($stats);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

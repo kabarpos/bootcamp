@@ -1,61 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bootcamp Management Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 application for managing public bootcamp programmes, participant enrollments, payment processing (Midtrans Snap), and post-course certification. The project ships with an authenticated student dashboard, a role-based administration area, and a marketing-facing public site.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2 + Laravel 12 with Jetstream & Livewire
+- MySQL / SQLite (local development)
+- Vite, Tailwind CSS 4, Alpine.js
+- Midtrans Snap for payments, DomPDF for certificate generation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2+ with `pdo_mysql`, `fileinfo`, `gd`
+- Composer 2.6+
+- Node.js 18+ and npm 9+
+- MySQL 8 / MariaDB 10.6 (or SQLite for quick start)
 
-## Learning Laravel
+## Getting Started
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Install dependencies**
+   ```bash
+   composer install
+   npm install
+   ```
+2. **Copy the environment file and generate the app key**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+3. **Configure the environment**
+   - Set database credentials (`DB_*`).
+   - Provide Midtrans keys (`MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`).
+   - Set the admin seeder variables before running migrations:
+     ```env
+     ADMIN_NAME="Bootcamp Admin"
+     ADMIN_EMAIL=admin@example.com
+     ADMIN_PASSWORD=ChangeMe123!
+     ```
+4. **Run migrations & seeders**
+   ```bash
+   php artisan migrate --seed
+   ```
+   The admin seeder will create / update the user defined by `ADMIN_EMAIL` with the password from `ADMIN_PASSWORD`.
+5. **Build frontend assets**
+   ```bash
+   npm run build     # for production
+   # or
+   npm run dev       # for local HMR
+   ```
+6. **Serve the application**
+   ```bash
+   php artisan serve
+   ```
+   For development convenience you can also use the bundled script:
+   ```bash
+   composer run dev
+   ```
+   which starts the Laravel server, queue listener, pail, and Vite concurrently.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Environment Variables
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Key | Purpose |
+| --- | --- |
+| `APP_URL` | Base application URL used for routing and callbacks |
+| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Credentials for the seeded administrator account |
+| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY` | Midtrans API credentials |
+| `MIDTRANS_IS_PRODUCTION` | Set to `true` in production, keep `false` for sandbox |
+| `MIDTRANS_SANITIZED_REDIRECT_URL` / `MIDTRANS_3DS_REDIRECT_URL` | Optional override URLs for Midtrans callbacks |
 
-## Laravel Sponsors
+Ensure the notification endpoint (`/payment/notification`) is reachable from Midtrans and that the URL is added to your Midtrans dashboard.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Testing
 
-### Premium Partners
+Run the application test suite:
+```bash
+php artisan test
+```
+Upcoming work adds end-to-end coverage for the enrollment and payment flow—run the suite after each change.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Payments
 
-## Contributing
+The checkout flow asks Midtrans for a Snap token server-side and loads the client key dynamically. Successful webhooks mark orders as paid and confirm the linked enrollment. Failed / expired webhooks roll the enrollment status back to `pending`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Certificates
 
-## Code of Conduct
+Certificates are generated as PDFs via DomPDF (`barryvdh/laravel-dompdf`). The admin UI supports issuing, revoking, regenerating, and exporting certificate data. Bulk generation is available for all completed enrollments without certificates.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Useful Commands
 
-## Security Vulnerabilities
+- `php artisan optimize:clear` – Clear caches during development.
+- `php artisan migrate:fresh --seed` – Reset and reseed the database.
+- `php artisan queue:listen` – Process background jobs (emails, notifications).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Notes
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Session storage defaults to the file driver for out-of-the-box usage; switch to Redis or database for clustered deployments.
+- Always change the seeded admin password in `.env` before deploying.
+- Update Midtrans settings (allowed origins, notification URLs) whenever the public domain changes.

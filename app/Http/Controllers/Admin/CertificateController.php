@@ -25,15 +25,20 @@ class CertificateController extends Controller
 
         // Search functionality
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('certificate_no', 'like', "%{$search}%")
-                  ->orWhereHas('enrollment.user', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('enrollment.batch', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+            $search = $request->string('search');
+            $query->where(function ($builder) use ($search) {
+                $builder->where('certificate_no', 'like', "%{$search}%")
+                    ->orWhereHas('enrollment.user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('enrollment.batch', function ($q) use ($search) {
+                        $q->where('code', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('enrollment.batch.bootcamp', function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%");
+                    });
+            });
         }
 
         // Filter by batch
@@ -61,7 +66,7 @@ class CertificateController extends Controller
         }
 
         $certificates = $query->orderBy('created_at', 'desc')->paginate(15);
-        $batches = Batch::orderBy('code')->get();
+        $batches = Batch::with('bootcamp')->orderBy('code')->get();
 
         return view('admin.certificates.index', compact('certificates', 'batches'));
     }
@@ -73,7 +78,7 @@ class CertificateController extends Controller
     {
         // Get completed enrollments without certificates
         $enrollments = Enrollment::with(['user', 'batch.bootcamp'])
-                                ->where('status', 'completed')
+                                ->completed()
                                 ->whereDoesntHave('certificate')
                                 ->orderBy('created_at', 'desc')
                                 ->get();
@@ -155,7 +160,7 @@ class CertificateController extends Controller
     public function edit(Certificate $certificate)
     {
         $enrollments = Enrollment::with(['user', 'batch.bootcamp'])
-                                ->where('status', 'completed')
+                                ->completed()
                                 ->orderBy('created_at', 'desc')
                                 ->get();
         
@@ -362,10 +367,10 @@ class CertificateController extends Controller
     /**
      * Generate certificate for completed enrollments
      */
-    public function generateForCompleted(Request $request)
+    public function generateForCompletedEnrollments(Request $request)
     {
         try {
-            $completedEnrollments = Enrollment::where('status', 'completed')
+            $completedEnrollments = Enrollment::completed()
                                             ->whereDoesntHave('certificate')
                                             ->get();
 
@@ -450,8 +455,8 @@ class CertificateController extends Controller
                     $certificate->certificate_no,
                     $certificate->enrollment->user->name,
                     $certificate->enrollment->user->email,
-                    $certificate->enrollment->batch->bootcamp->name ?? '',
-                    $certificate->enrollment->batch->name,
+                    $certificate->enrollment->batch->bootcamp->title ?? '',
+                    $certificate->enrollment->batch->code,
                     $certificate->issued_at ? $certificate->issued_at->format('Y-m-d H:i:s') : '',
                     $certificate->created_at->format('Y-m-d H:i:s'),
                     $certificate->file_url
@@ -521,3 +526,4 @@ class CertificateController extends Controller
         return $filename;
     }
 }
+

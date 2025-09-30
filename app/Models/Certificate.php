@@ -32,19 +32,19 @@ class Certificate extends Model
     }
 
     /**
-     * Get the user through enrollment.
+     * Convenience accessor for the related user.
      */
-    public function user()
+    public function getUserAttribute()
     {
-        return $this->hasOneThrough(User::class, Enrollment::class, 'id', 'id', 'enrollment_id', 'user_id');
+        return $this->enrollment?->user;
     }
 
     /**
-     * Get the batch through enrollment.
+     * Convenience accessor for the related batch.
      */
-    public function batch()
+    public function getBatchAttribute()
     {
-        return $this->hasOneThrough(Batch::class, Enrollment::class, 'id', 'id', 'enrollment_id', 'batch_id');
+        return $this->enrollment?->batch;
     }
 
     /**

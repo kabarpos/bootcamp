@@ -21,8 +21,8 @@ class EnrollmentFactory extends Factory
         return [
             'user_id' => User::factory(),
             'batch_id' => Batch::factory(),
-            'referral_id' => null, // Set to null for now to avoid foreign key issues
-            'status' => fake()->randomElement(['pending', 'confirmed', 'cancelled']),
+            'referral_id' => null,
+            'status' => fake()->randomElement(['pending', 'confirmed', 'cancelled', 'completed']),
         ];
     }
 }

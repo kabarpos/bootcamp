@@ -95,6 +95,6 @@ class Batch extends Model
      */
     public function getAvailableSlotsAttribute()
     {
-        return $this->capacity - $this->enrolled_count;
+        return max(0, (int) $this->capacity - $this->enrolled_count);
     }
 }
