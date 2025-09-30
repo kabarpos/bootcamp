@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Payment\ProcessEnrollmentRequest;
 use App\Models\Bootcamp;
 use App\Models\Batch;
 use App\Models\Enrollment;
@@ -49,10 +50,7 @@ class PaymentController extends Controller
      */
     public function processEnrollment(ProcessEnrollmentRequest $request, $slug)
     {
-        $request->validate([
-            'batch_id' => 'required|exists:batch,id',
-            'terms' => 'accepted',
-        ]);
+        $validated = $request->validated();
 
         $bootcamp = Bootcamp::where('slug', $slug)
             ->where('is_active', true)
@@ -60,17 +58,14 @@ class PaymentController extends Controller
 
         $batch = Batch::findOrFail($validated['batch_id']);
 
-        // Check if batch belongs to this bootcamp
-        if ($batch->bootcamp_id != $bootcamp->id) {
+        if ($batch->bootcamp_id !== $bootcamp->id) {
             return redirect()->back()->with('error', 'Invalid batch selection.');
         }
 
-        // Check if batch has available slots
         if ($batch->available_slots <= 0) {
             return redirect()->back()->with('error', 'This batch is full.');
         }
 
-        // Check if user is already enrolled in this batch
         $existingEnrollment = Enrollment::where('user_id', Auth::id())
             ->where('batch_id', $batch->id)
             ->first();
@@ -79,21 +74,18 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', 'You are already enrolled in this batch.');
         }
 
-        // Create enrollment
         $enrollment = Enrollment::create([
             'user_id' => Auth::id(),
             'batch_id' => $batch->id,
             'status' => 'pending',
         ]);
 
-        // Create a unique invoice number
         $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-        
-        // Ensure the invoice number is unique
+
         while (Order::where('invoice_no', $invoiceNo)->exists()) {
             $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         }
-        
+
         $order = Order::create([
             'enrollment_id' => $enrollment->id,
             'invoice_no' => $invoiceNo,
@@ -101,12 +93,11 @@ class PaymentController extends Controller
             'discount_amount' => 0,
             'total' => $bootcamp->base_price,
             'status' => 'pending',
-            'expired_at' => now()->addDays(7), // Default 7 days
+            'expired_at' => now()->addDays(7),
         ]);
 
         return redirect()->route('payment.checkout', $order->id);
     }
-
     /**
      * Show checkout page with Midtrans payment
      *
@@ -295,6 +286,11 @@ class PaymentController extends Controller
         return view('public.payment-failure');
     }
 }
+
+
+
+
+
 
 
 
