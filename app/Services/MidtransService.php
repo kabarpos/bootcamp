@@ -96,19 +96,14 @@ class MidtransService
         $fraudStatus = $notification['fraud_status'] ?? 'unknown';
         $orderId = $notification['order_id'] ?? 'unknown';
 
-        $status = 'pending';
-
-        if ($transactionStatus == 'capture') {
-            if ($fraudStatus == 'challenge') {
-                $status = 'challenge';
-            } elseif ($fraudStatus == 'accept') {
-                $status = 'paid';
-            }
-        } elseif ($transactionStatus == 'settlement') {
-            $status = 'paid';
-        } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
-            $status = 'failed';
-        }
+        $status = match (true) {
+            $transactionStatus === 'capture' && $fraudStatus === 'accept' => 'paid',
+            $transactionStatus === 'settlement' => 'paid',
+            $transactionStatus === 'expire' => 'expired',
+            in_array($transactionStatus, ['cancel', 'deny'], true) => 'failed',
+            in_array($transactionStatus, ['refund', 'partial_refund'], true) => 'refunded',
+            default => 'pending',
+        };
 
         return [
             'order_id' => $orderId,
@@ -117,7 +112,6 @@ class MidtransService
             'fraud_status' => $fraudStatus,
         ];
     }
-
     /**
      * Get client key for frontend integration
      *
@@ -140,4 +134,5 @@ class MidtransService
             'https://app.sandbox.midtrans.com/snap/snap.js';
     }
 }
+
 

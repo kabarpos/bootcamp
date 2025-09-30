@@ -51,19 +51,21 @@ class EnrollmentFlowTest extends TestCase
             'terms' => true,
         ]);
 
-        $order = Order::first();
-        $enrollment = Enrollment::first();
+        $response->assertStatus(302);
+
+        $this->assertDatabaseHas('enrollment', [
+            'user_id' => $user->id,
+            'batch_id' => $batch->id,
+            'status' => 'pending',
+        ]);
+
+        $order = Order::latest('id')->first();
 
         $this->assertNotNull($order);
-        $this->assertNotNull($enrollment);
-
         $response->assertRedirect(route('payment.checkout', $order->id));
-        $this->assertSame($user->id, $enrollment->user_id);
-        $this->assertSame('pending', $enrollment->status);
         $this->assertSame('pending', $order->status);
         $this->assertSame($bootcamp->base_price, (float) $order->total);
     }
-
     public function test_checkout_displays_snap_token(): void
     {
         $user = User::factory()->create();
@@ -185,3 +187,15 @@ class EnrollmentFlowTest extends TestCase
         parent::tearDown();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
