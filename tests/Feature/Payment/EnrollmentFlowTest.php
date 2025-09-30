@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Mockery;
 use Tests\TestCase;
 
@@ -19,7 +20,12 @@ class EnrollmentFlowTest extends TestCase
     public function test_guest_is_redirected_from_enroll_page(): void
     {
         $bootcamp = Bootcamp::factory()->create(['is_active' => true]);
-        Batch::factory()->for($bootcamp)->create(['status' => 'upcoming', 'capacity' => 10]);
+        Batch::factory()->for($bootcamp)->create([
+            'status' => 'upcoming',
+            'capacity' => 10,
+            'start_date' => Carbon::now()->addWeek(),
+            'end_date' => Carbon::now()->addWeeks(8),
+        ]);
 
         $response = $this->get(route('payment.enroll', $bootcamp->slug));
 
@@ -30,7 +36,12 @@ class EnrollmentFlowTest extends TestCase
     {
         $user = User::factory()->create();
         $bootcamp = Bootcamp::factory()->create(['is_active' => true]);
-        Batch::factory()->for($bootcamp)->create(['status' => 'upcoming', 'capacity' => 10]);
+        Batch::factory()->for($bootcamp)->create([
+            'status' => 'upcoming',
+            'capacity' => 10,
+            'start_date' => Carbon::now()->addWeek(),
+            'end_date' => Carbon::now()->addWeeks(8),
+        ]);
 
         $response = $this->actingAs($user)->get(route('payment.enroll', $bootcamp->slug));
 
@@ -44,6 +55,8 @@ class EnrollmentFlowTest extends TestCase
         $batch = Batch::factory()->for($bootcamp)->create([
             'status' => 'upcoming',
             'capacity' => 20,
+            'start_date' => Carbon::now()->addWeek(),
+            'end_date' => Carbon::now()->addWeeks(8),
         ]);
 
         $response = $this->actingAs($user)->post(route('payment.process', $bootcamp->slug), [
@@ -64,13 +77,19 @@ class EnrollmentFlowTest extends TestCase
         $this->assertNotNull($order);
         $response->assertRedirect(route('payment.checkout', $order->id));
         $this->assertSame('pending', $order->status);
-        $this->assertSame($bootcamp->base_price, (float) $order->total);
+        $this->assertEquals((float) $bootcamp->base_price, (float) $order->total);
     }
+
     public function test_checkout_displays_snap_token(): void
     {
         $user = User::factory()->create();
         $bootcamp = Bootcamp::factory()->create(['is_active' => true, 'base_price' => 750000]);
-        $batch = Batch::factory()->for($bootcamp)->create(['status' => 'upcoming', 'capacity' => 15]);
+        $batch = Batch::factory()->for($bootcamp)->create([
+            'status' => 'upcoming',
+            'capacity' => 15,
+            'start_date' => Carbon::now()->addWeek(),
+            'end_date' => Carbon::now()->addWeeks(6),
+        ]);
 
         $enrollment = Enrollment::factory()->create([
             'user_id' => $user->id,
@@ -83,6 +102,7 @@ class EnrollmentFlowTest extends TestCase
             'amount' => $bootcamp->base_price,
             'total' => $bootcamp->base_price,
             'status' => 'pending',
+            'expired_at' => Carbon::now()->addDays(7),
         ]);
 
         $midtransMock = Mockery::mock(MidtransService::class);
@@ -103,7 +123,12 @@ class EnrollmentFlowTest extends TestCase
     {
         $user = User::factory()->create();
         $bootcamp = Bootcamp::factory()->create(['is_active' => true, 'base_price' => 600000]);
-        $batch = Batch::factory()->for($bootcamp)->create(['status' => 'upcoming', 'capacity' => 10]);
+        $batch = Batch::factory()->for($bootcamp)->create([
+            'status' => 'upcoming',
+            'capacity' => 10,
+            'start_date' => Carbon::now()->addWeek(),
+            'end_date' => Carbon::now()->addWeeks(6),
+        ]);
 
         $enrollment = Enrollment::factory()->create([
             'user_id' => $user->id,
@@ -117,6 +142,7 @@ class EnrollmentFlowTest extends TestCase
             'amount' => $bootcamp->base_price,
             'total' => $bootcamp->base_price,
             'status' => 'pending',
+            'expired_at' => Carbon::now()->addDays(7),
         ]);
 
         $payload = [
@@ -147,7 +173,12 @@ class EnrollmentFlowTest extends TestCase
     {
         $user = User::factory()->create();
         $bootcamp = Bootcamp::factory()->create(['is_active' => true, 'base_price' => 400000]);
-        $batch = Batch::factory()->for($bootcamp)->create(['status' => 'upcoming', 'capacity' => 5]);
+        $batch = Batch::factory()->for($bootcamp)->create([
+            'status' => 'upcoming',
+            'capacity' => 5,
+            'start_date' => Carbon::now()->addWeek(),
+            'end_date' => Carbon::now()->addWeeks(6),
+        ]);
 
         $enrollment = Enrollment::factory()->create([
             'user_id' => $user->id,
@@ -161,6 +192,7 @@ class EnrollmentFlowTest extends TestCase
             'amount' => $bootcamp->base_price,
             'total' => $bootcamp->base_price,
             'status' => 'pending',
+            'expired_at' => Carbon::now()->addDays(7),
         ]);
 
         $payload = [
@@ -187,15 +219,3 @@ class EnrollmentFlowTest extends TestCase
         parent::tearDown();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

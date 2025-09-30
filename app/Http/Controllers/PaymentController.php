@@ -25,9 +25,6 @@ class PaymentController extends Controller
 
     /**
      * Show enrollment form for a bootcamp
-     *
-     * @param string $slug
-     * @return \Illuminate\View\View
      */
     public function enroll($slug)
     {
@@ -35,7 +32,6 @@ class PaymentController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
-        // Get active batches for this bootcamp
         $batches = $bootcamp->activeBatches()->with('city')->get();
 
         return view('public.enroll', compact('bootcamp', 'batches'));
@@ -43,10 +39,6 @@ class PaymentController extends Controller
 
     /**
      * Process enrollment and create order
-     *
-     * @param Request $request
-     * @param string $slug
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function processEnrollment(ProcessEnrollmentRequest $request, $slug)
     {
@@ -98,11 +90,9 @@ class PaymentController extends Controller
 
         return redirect()->route('payment.checkout', $order->id);
     }
+
     /**
      * Show checkout page with Midtrans payment
-     *
-     * @param int $orderId
-     * @return \Illuminate\View\View
      */
     public function checkout($orderId)
     {
@@ -128,7 +118,7 @@ class PaymentController extends Controller
 
         $snapToken = $this->midtransService->getSnapToken($transactionDetails);
 
-        if (!$snapToken) {
+        if (! $snapToken) {
             Log::error('Failed to get Snap token for order', [
                 'order_id' => $order->id,
                 'invoice_no' => $order->invoice_no,
@@ -144,6 +134,7 @@ class PaymentController extends Controller
 
         return view('public.checkout', compact('order', 'snapToken', 'snapJsUrl', 'clientKey'));
     }
+
     /**
      * Handle Midtrans notification (webhook)
      */
@@ -159,7 +150,7 @@ class PaymentController extends Controller
 
         $order = Order::where('invoice_no', $result['order_id'])->first();
 
-        if (!$order) {
+        if (! $order) {
             Log::warning('Order not found for notification', ['order_id' => $result['order_id']]);
 
             return response()->json(['status' => 'IGNORED']);
@@ -174,34 +165,22 @@ class PaymentController extends Controller
 
         $order->update(['status' => $result['status']]);
 
+        $existingPayment = $order->payments()->latest()->first();
+        $mappedMethod = $this->mapPaymentMethod($notification['payment_type'] ?? null);
+
         if ($result['status'] === 'paid') {
             $order->enrollment->update(['status' => 'confirmed']);
 
-            $rawMethod = $notification['payment_type'] ?? ($notification['payment_method'] ?? null);
-            $method = match ($rawMethod) {
-                'bank_transfer', 'echannel', 'permata' => 'va',
-                'qris' => 'qris',
-                'gopay', 'shopeepay', 'ovo' => 'ewallet',
-                'credit_card' => 'cc',
-                default => 'manual',
-            };
-
             $paymentData = [
-                'method' => $method,
+                'method' => $mappedMethod,
                 'provider' => 'midtrans',
                 'transaction_id' => $notification['transaction_id'] ?? null,
                 'status' => 'success',
                 'paid_at' => now(),
                 'receipt_url' => $notification['pdf_url'] ?? null,
+                'va_number' => $notification['va_numbers'][0]['va_number'] ?? $existingPayment?->va_number,
+                'ewallet_ref' => $notification['issuer'] ?? $notification['payment_type'] ?? $existingPayment?->ewallet_ref,
             ];
-
-            if (!empty($notification['va_numbers'][0]['va_number'])) {
-                $paymentData['va_number'] = $notification['va_numbers'][0]['va_number'];
-            }
-
-            if (!empty($notification['issuer'])) {
-                $paymentData['ewallet_ref'] = $notification['issuer'];
-            }
 
             Payment::updateOrCreate(
                 ['order_id' => $order->id],
@@ -209,29 +188,59 @@ class PaymentController extends Controller
             );
 
             Log::info('Payment recorded for order', ['order_id' => $order->id]);
-        } elseif (in_array($result['status'], ['failed', 'expired'], true)) {
+        } elseif ($result['status'] === 'expired') {
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $existingPayment?->method ?? $mappedMethod,
+                    'provider' => $existingPayment?->provider ?? 'midtrans',
+                    'transaction_id' => $existingPayment?->transaction_id ?? ($notification['transaction_id'] ?? null),
+                    'status' => 'failed',
+                    'paid_at' => null,
+                    'receipt_url' => $existingPayment?->receipt_url,
+                    'va_number' => $existingPayment?->va_number,
+                    'ewallet_ref' => $existingPayment?->ewallet_ref,
+                ]
+            );
+
             $order->enrollment->update(['status' => 'pending']);
-
-            Payment::where('order_id', $order->id)->update([
-                'status' => 'failed',
-                'paid_at' => null,
-            ]);
         } elseif ($result['status'] === 'refunded') {
-            $order->enrollment->update(['status' => 'cancelled']);
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $existingPayment?->method ?? $mappedMethod,
+                    'provider' => $existingPayment?->provider ?? 'midtrans',
+                    'transaction_id' => $existingPayment?->transaction_id ?? ($notification['transaction_id'] ?? null),
+                    'status' => 'refunded',
+                    'paid_at' => null,
+                    'receipt_url' => $existingPayment?->receipt_url,
+                    'va_number' => $existingPayment?->va_number,
+                    'ewallet_ref' => $existingPayment?->ewallet_ref,
+                ]
+            );
 
-            Payment::where('order_id', $order->id)->update([
-                'status' => 'refunded',
-                'paid_at' => null,
-            ]);
+            $order->enrollment->update(['status' => 'cancelled']);
+        } elseif ($result['status'] === 'failed') {
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $existingPayment?->method ?? $mappedMethod,
+                    'provider' => $existingPayment?->provider ?? 'midtrans',
+                    'transaction_id' => $existingPayment?->transaction_id ?? ($notification['transaction_id'] ?? null),
+                    'status' => 'failed',
+                    'paid_at' => null,
+                    'receipt_url' => $existingPayment?->receipt_url,
+                    'va_number' => $existingPayment?->va_number,
+                    'ewallet_ref' => $existingPayment?->ewallet_ref,
+                ]
+            );
         }
 
         return response()->json(['status' => 'OK']);
     }
+
     /**
      * Handle payment success redirect
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function success(Request $request)
     {
@@ -241,35 +250,31 @@ class PaymentController extends Controller
             'status_code' => $request->get('status_code'),
             'transaction_status' => $request->get('transaction_status'),
         ]);
-        
+
         $orderId = $request->get('order_id');
-        
+
         if ($orderId) {
             $order = Order::where('invoice_no', $orderId)->first();
-            
+
             if ($order && $order->status === 'paid') {
                 Log::info('Redirecting to payment success page', ['order_id' => $order->id]);
                 return redirect()->route('payment.success', $order->id);
             }
         }
-        
+
         Log::info('Redirecting to dashboard with info message');
         return redirect()->route('public.dashboard')->with('info', 'Payment status is being processed.');
     }
 
     /**
      * Show payment success page
-     *
-     * @param int $orderId
-     * @return \Illuminate\View\View
      */
     public function successPage($orderId)
     {
         $order = Order::with(['enrollment.batch.bootcamp', 'enrollment.user'])
             ->findOrFail($orderId);
 
-        // Check if order belongs to current user
-        if ($order->enrollment->user_id != Auth::id()) {
+        if ($order->enrollment->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -278,28 +283,20 @@ class PaymentController extends Controller
 
     /**
      * Show payment failure page
-     *
-     * @return \Illuminate\View\View
      */
     public function failure()
     {
         return view('public.payment-failure');
     }
+
+    private function mapPaymentMethod(?string $raw): string
+    {
+        return match ($raw) {
+            'bank_transfer', 'echannel', 'permata' => 'va',
+            'qris' => 'qris',
+            'gopay', 'shopeepay', 'ovo' => 'ewallet',
+            'credit_card' => 'cc',
+            default => 'manual',
+        };
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
