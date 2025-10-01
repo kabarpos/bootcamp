@@ -10,6 +10,13 @@
         </div>
     </x-slot>
 
+    @php
+        $stats = $stats ?? ['enrollments' => 0, 'certificates' => 0, 'total_spent' => 0];
+        $recentEnrollments = $recentEnrollments ?? collect();
+        $upcomingEvents = $upcomingEvents ?? collect();
+        $blogPosts = $blogPosts ?? collect();
+    @endphp
+
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             {{-- Stats --}}

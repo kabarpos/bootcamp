@@ -39,7 +39,7 @@ Route::post('/payment/notification', [PaymentController::class, 'notification'])
 
 // Default Jetstream dashboard
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
+    Route::get('/dashboard', [PublicController::class, 'userDashboard'])->name('dashboard');
 });
 
 // Administration area

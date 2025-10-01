@@ -86,7 +86,17 @@ class PublicController extends Controller
 
     public function dashboard()
     {
-        $user = Auth::user();
+        return view('public.dashboard', $this->dashboardData());
+    }
+
+    public function userDashboard()
+    {
+        return view('dashboard', $this->dashboardData());
+    }
+
+    private function dashboardData(): array
+    {
+        $userId = Auth::id();
 
         $blogPosts = $this->blogPostRepository->getPublished(3, ['author']);
 
@@ -111,19 +121,19 @@ class PublicController extends Controller
         ]);
 
         $stats = [
-            'enrollments' => $this->enrollmentRepository->countForUser($user->id),
-            'certificates' => $this->enrollmentRepository->countCertificatesForUser($user->id),
-            'total_spent' => $this->orderRepository->sumPaidTotalForUser($user->id),
+            'enrollments' => $this->enrollmentRepository->countForUser($userId),
+            'certificates' => $this->enrollmentRepository->countCertificatesForUser($userId),
+            'total_spent' => $this->orderRepository->sumPaidTotalForUser($userId),
         ];
 
-        $recentEnrollments = $this->enrollmentRepository->getRecentForUser($user->id, 6);
+        $recentEnrollments = $this->enrollmentRepository->getRecentForUser($userId, 6);
 
-        return view('public.dashboard', [
+        return [
             'blogPosts' => $blogPosts,
             'upcomingEvents' => $upcomingEvents,
             'stats' => $stats,
             'recentEnrollments' => $recentEnrollments,
-        ]);
+        ];
     }
 
     public function resources($slug)
