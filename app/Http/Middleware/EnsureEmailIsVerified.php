@@ -12,22 +12,21 @@ class EnsureEmailIsVerified
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is authenticated
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
-        $user = Auth::user();
+        $user = $request->user();
 
-        // Check if user implements MustVerifyEmail and has verified their email
-        if ($user instanceof MustVerifyEmail && !$user->hasVerifiedEmail()) {
-            // Redirect to verification notice page or dashboard with error
-            return redirect()->route('dashboard')->with('error', 'Please verify your email address before accessing this page.');
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            if ($request->expectsJson()) {
+                abort(403, 'Your email address is not verified.');
+            }
+
+            return redirect()->route('verification.notice');
         }
 
         return $next($request);
