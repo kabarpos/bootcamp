@@ -47,7 +47,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function (): void {
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::redirect('/', '/admin/dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('bootcamps', AdminBootcampController::class);
         Route::patch('bootcamps/{bootcamp}/toggle-status', [AdminBootcampController::class, 'toggleStatus'])
@@ -75,12 +76,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])
             ->name('certificates.generate');
         Route::post('certificates/bulk/generate', [CertificateController::class, 'generateForCompletedEnrollments'])
             ->name('certificates.generate-bulk');
+        Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
         Route::get('certificates/export/csv', [CertificateController::class, 'export'])->name('certificates.export');
         Route::get('certificates/statistics', [CertificateController::class, 'statistics'])->name('certificates.statistics');
 
-        Route::resource('orders', OrderController::class)->only(['index', 'show', 'destroy']);
+        Route::resource('orders', OrderController::class);
         Route::get('orders/export/csv', [OrderController::class, 'export'])->name('orders.export');
-        Route::get('orders/statistics', [OrderController::class, 'statistics'])->name('orders.statistics');
+        Route::get('orders/statistics', [OrderController::class, 'getStatistics'])->name('orders.statistics');
 
         Route::resource('users', UserController::class);
         Route::resource('roles', RoleController::class);

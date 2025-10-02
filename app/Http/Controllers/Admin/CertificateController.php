@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class CertificateController extends Controller
 {
@@ -351,13 +352,32 @@ class CertificateController extends Controller
                 return back()->withErrors(['error' => 'Sertifikat belum diterbitkan.']);
             }
 
-            if (!$certificate->file_url || !Storage::exists($certificate->file_url)) {
-                // Regenerate PDF if not exists
+            $disk = Storage::disk(config('filesystems.default'));
+
+            if (!$certificate->file_url || !$disk->exists($certificate->file_url)) {
                 $this->generateCertificatePDF($certificate);
             }
 
+            $stream = $disk->readStream($certificate->file_url);
+            if ($stream === false) {
+                Log::error('Certificate PDF stream could not be opened', [
+                    'certificate_id' => $certificate->id,
+                    'file_url' => $certificate->file_url,
+                ]);
+
+                return back()->withErrors(['error' => 'File sertifikat tidak ditemukan.']);
+            }
+
             $filename = "certificate_{$certificate->certificate_no}.pdf";
-            return Storage::download($certificate->file_url, $filename);
+
+            return response()->streamDownload(function () use ($stream) {
+                fpassthru($stream);
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+            }, $filename, [
+                'Content-Type' => 'application/pdf',
+            ]);
         } catch (\Exception $e) {
             Log::error('Error downloading certificate: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Terjadi kesalahan saat mengunduh sertifikat.']);
@@ -509,21 +529,26 @@ class CertificateController extends Controller
             'issued_date' => $certificate->issued_at ? $certificate->issued_at->format('d F Y') : date('d F Y')
         ];
 
-        $pdf = Pdf::loadView('admin.certificates.template', $data)
-                  ->setPaper('a4', 'landscape')
-                  ->setOptions([
-                      'dpi' => 150,
-                      'defaultFont' => 'sans-serif',
-                      'isHtml5ParserEnabled' => true,
-                      'isRemoteEnabled' => true
-                  ]);
+        $options = new Options();
+        $options->set('dpi', 150);
+        $options->set('defaultFont', 'sans-serif');
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $pdf = new Dompdf($options);
+        $pdf->setPaper('a4', 'landscape');
+        $html = view('admin.certificates.template', $data)->render();
+        $pdf->loadHtml($html);
+        $pdf->render();
 
         $filename = "certificates/{$certificate->certificate_no}.pdf";
-        Storage::put($filename, $pdf->output());
+        $disk = Storage::disk(config('filesystems.default'));
+        $disk->put($filename, $pdf->output());
         
         $certificate->update(['file_url' => $filename]);
         
         return $filename;
     }
 }
+
 

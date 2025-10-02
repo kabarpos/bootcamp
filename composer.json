@@ -19,8 +19,8 @@
         "livewire/livewire": "^3.6.4",
         "meilisearch/meilisearch-php": "^1.16",
         "propaganistas/laravel-phone": "^6.0",
-        "spatie/laravel-sitemap": "^7.3",
-        "barryvdh/laravel-dompdf": "^2.1"
+        "dompdf/dompdf": "^3.0",
+        "spatie/laravel-sitemap": "^7.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
