@@ -15,30 +15,44 @@
         </a>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="mb-6 flex flex-col md:flex-row gap-4">
-        <form method="GET" class="flex-1">
-            <div class="flex rounded-md shadow-sm">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari user..." 
-                       class="block w-full min-w-0 flex-1 rounded-l-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <button type="submit" 
-                        class="relative -ml-px inline-flex items-center rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 border border-gray-300 hover:bg-gray-50">
-                    Cari
-                </button>
+    @php($hasFilters = request()->filled('search') || request()->filled('role'))
+
+    <!-- Filters -->
+    <div class="mb-6">
+        <form method="GET" class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
+                    <input id="search" type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Cari user..."
+                           class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <select id="role" name="role"
+                            class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Semua Role</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-        </form>
-        
-        <form method="GET" class="flex">
-            <select name="role" onchange="this.form.submit()" 
-                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="">Semua Role</option>
-                @foreach($roles as $role)
-                    <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
-                        {{ $role->name }}
-                    </option>
-                @endforeach
-            </select>
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="text-sm text-gray-500">
+                    @if($hasFilters)
+                        Menampilkan hasil sesuai pencarian/filter.
+                    @else
+                        Menampilkan semua user.
+                    @endif
+                </div>
+                <div class="flex items-center gap-3 justify-end">
+                    <a href="{{ route('admin.users.index') }}"
+                       class="text-sm text-gray-500 hover:text-gray-700">Reset</a>
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition">Terapkan</button>
+                </div>
+            </div>
         </form>
     </div>
 

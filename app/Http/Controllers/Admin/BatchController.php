@@ -14,13 +14,47 @@ class BatchController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $batches = Batch::with(['bootcamp', 'city', 'enrollments'])
-            ->latest()
-            ->paginate(10);
+        $query = Batch::with(['bootcamp', 'city', 'enrollments']);
 
-        return view('admin.batches.index', compact('batches'));
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                    ->orWhereHas('bootcamp', function ($bootcampQuery) use ($search) {
+                        $bootcampQuery->where('title', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        if ($request->filled('bootcamp_id')) {
+            $query->where('bootcamp_id', $request->get('bootcamp_id'));
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->get('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('end_date', '<=', $request->get('end_date'));
+        }
+
+        $batches = $query->latest()->paginate(10)->withQueryString();
+
+        $bootcamps = Bootcamp::orderBy('title')->get(['id', 'title']);
+        $statuses = [
+            'upcoming' => 'Upcoming',
+            'ongoing' => 'Ongoing',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+        ];
+
+        return view('admin.batches.index', compact('batches', 'bootcamps', 'statuses'));
     }
 
     /**

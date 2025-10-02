@@ -22,12 +22,16 @@ class EnrollmentController extends Controller
 
         // Search functionality
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            })->orWhereHas('batch', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('batch', function ($batchQuery) use ($search) {
+                    $batchQuery->where('code', 'like', "%{$search}%");
+                })->orWhereHas('batch.bootcamp', function ($bootcampQuery) use ($search) {
+                    $bootcampQuery->where('title', 'like', "%{$search}%");
+                });
             });
         }
 
@@ -41,6 +45,10 @@ class EnrollmentController extends Controller
             $query->where('batch_id', $request->batch_id);
         }
 
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
         // Filter by date range
         if ($request->filled('start_date')) {
             $query->whereDate('created_at', '>=', $request->start_date);
@@ -49,11 +57,18 @@ class EnrollmentController extends Controller
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        $enrollments = $query->orderBy('created_at', 'desc')->paginate(15);
+        $enrollments = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
         $batches = Batch::with('bootcamp')->orderBy('code')->get();
-        $users = User::orderBy('email')->get();
+        $users = User::orderBy('name')->get(['id', 'name', 'email']);
 
-        return view('admin.enrollments.index', compact('enrollments', 'batches', 'users'));
+        $statuses = [
+            'pending' => 'Pending',
+            'confirmed' => 'Confirmed',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+        ];
+
+        return view('admin.enrollments.index', compact('enrollments', 'batches', 'users', 'statuses'));
     }
 
     /**

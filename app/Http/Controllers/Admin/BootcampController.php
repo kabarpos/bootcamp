@@ -15,13 +15,50 @@ class BootcampController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bootcamps = Bootcamp::with(['categories', 'mentors', 'batches'])
-            ->latest()
-            ->paginate(10);
+        $query = Bootcamp::with(['categories', 'mentors', 'batches']);
 
-        return view('admin.bootcamps.index', compact('bootcamps'));
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('mode')) {
+            $query->where('mode', $request->get('mode'));
+        }
+
+        if ($request->filled('level')) {
+            $query->where('level', $request->get('level'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->get('status') === 'active');
+        }
+
+        $bootcamps = $query->latest()->paginate(10)->withQueryString();
+
+        $modes = [
+            'online' => 'Online',
+            'offline' => 'Offline',
+            'hybrid' => 'Hybrid',
+        ];
+
+        $levels = [
+            'beginner' => 'Beginner',
+            'intermediate' => 'Intermediate',
+            'advanced' => 'Advanced',
+        ];
+
+        $statuses = [
+            'active' => 'Aktif',
+            'inactive' => 'Nonaktif',
+        ];
+
+        return view('admin.bootcamps.index', compact('bootcamps', 'modes', 'levels', 'statuses'));
     }
 
     /**

@@ -15,6 +15,67 @@
         </a>
     </div>
 
+    @php($hasFilters = request()->filled('search') || request()->filled('mode') || request()->filled('level') || request()->filled('status'))
+
+    <!-- Filters -->
+    <div class="mb-6">
+        <form method="GET" class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
+                    <input id="search" type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Cari bootcamp..."
+                           class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="mode" class="block text-sm font-medium text-gray-700 mb-1">Mode</label>
+                    <select id="mode" name="mode"
+                            class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Semua Mode</option>
+                        @foreach($modes as $value => $label)
+                            <option value="{{ $value }}" {{ request('mode') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="level" class="block text-sm font-medium text-gray-700 mb-1">Level</label>
+                    <select id="level" name="level"
+                            class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Semua Level</option>
+                        @foreach($levels as $value => $label)
+                            <option value="{{ $value }}" {{ request('level') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select id="status" name="status"
+                            class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Semua Status</option>
+                        @foreach($statuses as $value => $label)
+                            <option value="{{ $value }}" {{ request('status') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="text-sm text-gray-500">
+                    @if($hasFilters)
+                        Menampilkan hasil berdasarkan filter yang dipilih.
+                    @else
+                        Menampilkan semua bootcamp.
+                    @endif
+                </div>
+                <div class="flex items-center gap-3 justify-end">
+                    <a href="{{ route('admin.bootcamps.index') }}"
+                       class="text-sm text-gray-500 hover:text-gray-700">Reset</a>
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition">Terapkan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
