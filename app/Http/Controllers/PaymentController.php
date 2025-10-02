@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\MidtransService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -144,6 +145,14 @@ class PaymentController extends Controller
 
         Log::info('Midtrans Notification Received', $notification);
 
+        if (! $this->midtransService->validateSignature($notification)) {
+            Log::warning('Midtrans notification signature mismatch', [
+                'order_id' => $notification['order_id'] ?? null,
+            ]);
+
+            return response()->json(['status' => 'INVALID_SIGNATURE'], 403);
+        }
+
         $result = $this->midtransService->handleNotification($notification);
 
         Log::info('Midtrans Notification Processed', $result);
@@ -163,78 +172,7 @@ class PaymentController extends Controller
             'new_status' => $result['status'],
         ]);
 
-        $order->update(['status' => $result['status']]);
-
-        $existingPayment = $order->payments()->latest()->first();
-        $mappedMethod = $this->mapPaymentMethod($notification['payment_type'] ?? null);
-
-        if ($result['status'] === 'paid') {
-            $order->enrollment->update(['status' => 'confirmed']);
-
-            $paymentData = [
-                'method' => $mappedMethod,
-                'provider' => 'midtrans',
-                'transaction_id' => $notification['transaction_id'] ?? null,
-                'status' => 'success',
-                'paid_at' => now(),
-                'receipt_url' => $notification['pdf_url'] ?? null,
-                'va_number' => $notification['va_numbers'][0]['va_number'] ?? $existingPayment?->va_number,
-                'ewallet_ref' => $notification['issuer'] ?? $notification['payment_type'] ?? $existingPayment?->ewallet_ref,
-            ];
-
-            Payment::updateOrCreate(
-                ['order_id' => $order->id],
-                $paymentData
-            );
-
-            Log::info('Payment recorded for order', ['order_id' => $order->id]);
-        } elseif ($result['status'] === 'expired') {
-            Payment::updateOrCreate(
-                ['order_id' => $order->id],
-                [
-                    'method' => $existingPayment?->method ?? $mappedMethod,
-                    'provider' => $existingPayment?->provider ?? 'midtrans',
-                    'transaction_id' => $existingPayment?->transaction_id ?? ($notification['transaction_id'] ?? null),
-                    'status' => 'failed',
-                    'paid_at' => null,
-                    'receipt_url' => $existingPayment?->receipt_url,
-                    'va_number' => $existingPayment?->va_number,
-                    'ewallet_ref' => $existingPayment?->ewallet_ref,
-                ]
-            );
-
-            $order->enrollment->update(['status' => 'pending']);
-        } elseif ($result['status'] === 'refunded') {
-            Payment::updateOrCreate(
-                ['order_id' => $order->id],
-                [
-                    'method' => $existingPayment?->method ?? $mappedMethod,
-                    'provider' => $existingPayment?->provider ?? 'midtrans',
-                    'transaction_id' => $existingPayment?->transaction_id ?? ($notification['transaction_id'] ?? null),
-                    'status' => 'refunded',
-                    'paid_at' => null,
-                    'receipt_url' => $existingPayment?->receipt_url,
-                    'va_number' => $existingPayment?->va_number,
-                    'ewallet_ref' => $existingPayment?->ewallet_ref,
-                ]
-            );
-
-            $order->enrollment->update(['status' => 'cancelled']);
-        } elseif ($result['status'] === 'failed') {
-            Payment::updateOrCreate(
-                ['order_id' => $order->id],
-                [
-                    'method' => $existingPayment?->method ?? $mappedMethod,
-                    'provider' => $existingPayment?->provider ?? 'midtrans',
-                    'transaction_id' => $existingPayment?->transaction_id ?? ($notification['transaction_id'] ?? null),
-                    'status' => 'failed',
-                    'paid_at' => null,
-                    'receipt_url' => $existingPayment?->receipt_url,
-                    'va_number' => $existingPayment?->va_number,
-                    'ewallet_ref' => $existingPayment?->ewallet_ref,
-                ]
-            );
-        }
+        $this->applyPaymentStatus($order, $result, $notification);
 
         return response()->json(['status' => 'OK']);
     }
@@ -256,9 +194,42 @@ class PaymentController extends Controller
         if ($orderId) {
             $order = Order::where('invoice_no', $orderId)->first();
 
-            if ($order && $order->status === 'paid') {
-                Log::info('Redirecting to payment success page', ['order_id' => $order->id]);
-                return redirect()->route('payment.success', $order->id);
+            if ($order) {
+                if ($order->status === 'paid') {
+                    Log::info('Redirecting to payment success page', ['order_id' => $order->id]);
+                    return redirect()->route('payment.success', $order->id);
+                }
+
+                $statusResponse = $this->midtransService->getTransactionStatus($orderId);
+
+                if ($statusResponse) {
+                    $result = $this->midtransService->handleNotification($statusResponse);
+
+                    $this->applyPaymentStatus($order, $result, $statusResponse);
+                    $order->refresh();
+
+                    if ($result['status'] === 'paid') {
+                        Log::info('Payment synchronized during success redirect', [
+                            'order_id' => $order->id,
+                            'status' => $order->status,
+                        ]);
+
+                        return redirect()->route('payment.success', $order->id);
+                    }
+
+                    if (in_array($result['status'], ['failed', 'expired', 'refunded'], true)) {
+                        Log::info('Payment not successful after status sync', [
+                            'order_id' => $order->id,
+                            'synced_status' => $result['status'],
+                        ]);
+
+                        return redirect()->route('payment.failure')->with('error', 'Payment was not completed.');
+                    }
+                } else {
+                    Log::warning('Unable to fetch Midtrans status during success redirect', [
+                        'order_id' => $order->id,
+                    ]);
+                }
             }
         }
 
@@ -289,6 +260,102 @@ class PaymentController extends Controller
         return view('public.payment-failure');
     }
 
+    private function applyPaymentStatus(Order $order, array $result, array $payload = []): void
+    {
+        $existingPayment = $order->payments()->latest()->first();
+        $paymentType = $payload['payment_type'] ?? null;
+        $mappedMethod = $paymentType
+            ? $this->mapPaymentMethod($paymentType)
+            : ($existingPayment?->method ?? 'manual');
+
+        $order->update(['status' => $result['status']]);
+
+        if ($result['status'] === 'paid') {
+            $order->enrollment->update(['status' => 'confirmed']);
+
+            $paidAt = $existingPayment?->paid_at;
+
+            try {
+                if (! empty($payload['settlement_time'])) {
+                    $paidAt = Carbon::parse($payload['settlement_time']);
+                } elseif (! empty($payload['transaction_time'])) {
+                    $paidAt = Carbon::parse($payload['transaction_time']);
+                } elseif (! $paidAt) {
+                    $paidAt = now();
+                }
+            } catch (\Exception $exception) {
+                Log::warning('Failed to parse Midtrans payment timestamp', [
+                    'order_id' => $order->id,
+                    'payload_time' => $payload['settlement_time'] ?? $payload['transaction_time'] ?? null,
+                    'message' => $exception->getMessage(),
+                ]);
+
+                $paidAt = now();
+            }
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $mappedMethod,
+                    'provider' => 'midtrans',
+                    'transaction_id' => $payload['transaction_id'] ?? $existingPayment?->transaction_id,
+                    'status' => 'success',
+                    'paid_at' => $paidAt,
+                    'receipt_url' => $payload['pdf_url'] ?? $existingPayment?->receipt_url,
+                    'va_number' => data_get($payload, 'va_numbers.0.va_number', $existingPayment?->va_number),
+                    'ewallet_ref' => $payload['issuer'] ?? $payload['payment_type'] ?? $existingPayment?->ewallet_ref,
+                ]
+            );
+
+            Log::info('Payment recorded or updated for order', ['order_id' => $order->id]);
+        } elseif ($result['status'] === 'expired') {
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $mappedMethod,
+                    'provider' => $existingPayment?->provider ?? 'midtrans',
+                    'transaction_id' => $payload['transaction_id'] ?? $existingPayment?->transaction_id,
+                    'status' => 'failed',
+                    'paid_at' => null,
+                    'receipt_url' => $existingPayment?->receipt_url,
+                    'va_number' => $existingPayment?->va_number,
+                    'ewallet_ref' => $existingPayment?->ewallet_ref,
+                ]
+            );
+
+            $order->enrollment->update(['status' => 'pending']);
+        } elseif ($result['status'] === 'refunded') {
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $mappedMethod,
+                    'provider' => $existingPayment?->provider ?? 'midtrans',
+                    'transaction_id' => $payload['transaction_id'] ?? $existingPayment?->transaction_id,
+                    'status' => 'refunded',
+                    'paid_at' => null,
+                    'receipt_url' => $existingPayment?->receipt_url,
+                    'va_number' => $existingPayment?->va_number,
+                    'ewallet_ref' => $existingPayment?->ewallet_ref,
+                ]
+            );
+
+            $order->enrollment->update(['status' => 'cancelled']);
+        } elseif ($result['status'] === 'failed') {
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'method' => $mappedMethod,
+                    'provider' => $existingPayment?->provider ?? 'midtrans',
+                    'transaction_id' => $payload['transaction_id'] ?? $existingPayment?->transaction_id,
+                    'status' => 'failed',
+                    'paid_at' => null,
+                    'receipt_url' => $existingPayment?->receipt_url,
+                    'va_number' => $existingPayment?->va_number,
+                    'ewallet_ref' => $existingPayment?->ewallet_ref,
+                ]
+            );
+        }
+    }
+
     private function mapPaymentMethod(?string $raw): string
     {
         return match ($raw) {
@@ -300,3 +367,4 @@ class PaymentController extends Controller
         };
     }
 }
+

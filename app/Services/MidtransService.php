@@ -10,16 +10,20 @@ class MidtransService
     protected $serverKey;
     protected $clientKey;
     protected $isProduction;
-    protected $baseUrl;
+    protected $snapBaseUrl;
+    protected $apiBaseUrl;
 
     public function __construct()
     {
         $this->serverKey = config('midtrans.server_key');
         $this->clientKey = config('midtrans.client_key');
         $this->isProduction = config('midtrans.is_production', false);
-        $this->baseUrl = $this->isProduction ? 
-            'https://app.midtrans.com' : 
+        $this->snapBaseUrl = $this->isProduction ?
+            'https://app.midtrans.com' :
             'https://app.sandbox.midtrans.com';
+        $this->apiBaseUrl = $this->isProduction ?
+            'https://api.midtrans.com' :
+            'https://api.sandbox.midtrans.com';
     }
 
     /**
@@ -33,7 +37,7 @@ class MidtransService
         try {
             // Log the request for debugging
             Log::info('Midtrans Snap Token Request', [
-                'url' => "{$this->baseUrl}/snap/v1/transactions",
+                'url' => "{$this->snapBaseUrl}/snap/v1/transactions",
                 'transaction_details' => $transactionDetails,
                 'server_key_prefix' => substr($this->serverKey, 0, 10) . '...',
                 'is_production' => $this->isProduction,
@@ -45,7 +49,7 @@ class MidtransService
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ])
-                ->post("{$this->baseUrl}/snap/v1/transactions", [
+                ->post("{$this->snapBaseUrl}/snap/v1/transactions", [
                     'transaction_details' => $transactionDetails,
                     'credit_card' => [
                         'secure' => true,
@@ -112,6 +116,61 @@ class MidtransService
             'fraud_status' => $fraudStatus,
         ];
     }
+
+    /**
+     * Validate Midtrans notification signature.
+     */
+    public function validateSignature(array $notification): bool
+    {
+        if (! isset($notification['signature_key'], $notification['order_id'], $notification['status_code'], $notification['gross_amount'])) {
+            return false;
+        }
+
+        $rawSignature = $notification['order_id'] . $notification['status_code'] . $notification['gross_amount'] . $this->serverKey;
+        $expectedSignature = hash('sha512', $rawSignature);
+
+        return hash_equals($expectedSignature, $notification['signature_key']);
+    }
+
+    /**
+     * Fetch latest transaction status from Midtrans.
+     */
+    public function getTransactionStatus(string $orderId): ?array
+    {
+        $url = "{$this->apiBaseUrl}/v2/{$orderId}/status";
+
+        try {
+            Log::info('Midtrans Status Request', ['url' => $url, 'order_id' => $orderId]);
+
+            $response = Http::withBasicAuth($this->serverKey, '')
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                ])
+                ->get($url);
+
+            Log::info('Midtrans Status Response', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('Midtrans Status Error', [
+                'status' => $response->status(),
+                'response' => $response->body(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Status Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+
+        return null;
+    }
+
     /**
      * Get client key for frontend integration
      *
@@ -129,9 +188,7 @@ class MidtransService
      */
     public function getSnapJsUrl()
     {
-        return $this->isProduction ? 
-            'https://app.midtrans.com/snap/snap.js' : 
-            'https://app.sandbox.midtrans.com/snap/snap.js';
+        return "{$this->snapBaseUrl}/snap/snap.js";
     }
 }
 

@@ -51,9 +51,9 @@
                 @else
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($batches as $batch)
-                            <div class="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                                <input type="radio" name="batch_id" value="{{ $batch->id }}" id="batch_{{ $batch->id }}" class="hidden" required>
-                                <label for="batch_{{ $batch->id }}" class="block cursor-pointer">
+                            <label for="batch_{{ $batch->id }}" class="block cursor-pointer">
+                                <input type="radio" name="batch_id" value="{{ $batch->id }}" id="batch_{{ $batch->id }}" class="sr-only peer" required>
+                                <div class="border border-border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:border-primary hover:shadow-sm peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:shadow-md peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40">
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <h3 class="font-medium text-foreground">{{ $batch->code }}</h3>
@@ -88,8 +88,8 @@
                                             Rp {{ number_format($bootcamp->base_price, 0, ',', '.') }}
                                         </span>
                                     </div>
-                                </label>
-                            </div>
+                                </div>
+                            </label>
                         @endforeach
                     </div>
                     

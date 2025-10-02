@@ -79,7 +79,7 @@
                         You will be redirected to our secure payment gateway to complete your purchase.
                     </p>
                     
-                    <button id="pay-button" class="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg font-medium transition-colors">
+                    <button id="pay-button" class="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
                         Pay Rp {{ number_format($order->total, 0, ',', '.') }}
                     </button>
                 </div>
