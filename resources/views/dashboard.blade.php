@@ -12,6 +12,7 @@
 
     @php
         $stats = $stats ?? ['enrollments' => 0, 'certificates' => 0, 'total_spent' => 0];
+        $purchases = collect($purchases ?? []);
         $recentEnrollments = $recentEnrollments ?? collect();
         $upcomingEvents = $upcomingEvents ?? collect();
         $blogPosts = $blogPosts ?? collect();
@@ -80,46 +81,95 @@
                     <span class="text-sm text-muted-foreground">{{ $stats['enrollments'] }} total program</span>
                 </div>
                 <div class="p-6">
-                    @if($stats['enrollments'] > 0)
+                    @if($purchases->isEmpty())
+                        <div class="rounded-xl border border-dashed border-border bg-card/40 p-8 text-center">
+                            <h3 class="text-lg font-semibold text-foreground">Belum ada bootcamp yang kamu ikuti</h3>
+                            <p class="mt-2 text-sm text-muted-foreground">Mulai perjalanan belajar kamu dengan mendaftar bootcamp pilihan.</p>
+                            <a href="{{ route('public.bootcamps') }}"
+                               class="mt-5 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition">
+                                Cari Bootcamp
+                            </a>
+                        </div>
+                    @else
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            @foreach($recentEnrollments as $enrollment)
-                                <div class="bg-background border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <h4 class="font-semibold text-foreground text-sm">{{ $enrollment->batch->bootcamp->title }}</h4>
-                                        <span class="px-2 py-1 text-xs rounded-full {{
-                                            match ($enrollment->status) {
-                                                'confirmed', 'completed' => 'bg-green-100 text-green-800',
-                                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                                default => 'bg-gray-100 text-gray-800'
-                                            }
-                                        }}">
-                                            {{ ucfirst($enrollment->status) }}
-                                        </span>
-                                    </div>
-                                    <p class="text-muted-foreground text-xs mb-2">Batch: {{ $enrollment->batch->code }}</p>
-                                    <p class="text-muted-foreground text-xs">Mulai: {{ optional($enrollment->batch->start_date)->format('d M Y') }}</p>
-                                    @if($enrollment->certificate && $enrollment->certificate->issued_at)
-                                        <div class="mt-3">
-                                            <a href="#" class="inline-flex items-center text-xs text-blue-600 hover:text-blue-800">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                Download Sertifikat
-                                            </a>
+                            @foreach($purchases as $purchase)
+                                <div class="rounded-lg border border-border bg-background p-4 shadow-sm transition hover:shadow-md">
+                                    <a href="{{ $purchase['detail_url'] }}" class="block">
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <h4 class="text-sm font-semibold text-foreground">{{ $purchase['bootcamp_title'] }}</h4>
+                                            @if($purchase['bootcamp_mode'])
+                                                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
+                                                    {{ ucfirst($purchase['bootcamp_mode']) }}
+                                                </span>
+                                            @endif
                                         </div>
+                                        <div class="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                            @if($purchase['bootcamp_level'])
+                                                <span class="inline-flex items-center gap-1">
+                                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                                    </svg>
+                                                    Level {{ ucfirst($purchase['bootcamp_level']) }}
+                                                </span>
+                                            @endif
+                                            @if($purchase['batch_code'])
+                                                <span class="inline-flex items-center gap-1">
+                                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5l4 4m-6 1.5l4-4m-5.25 1.75l-6.5 6.5a12.083 12.083 0 00-2.72 4.27L3 21l2.98-.53a12.083 12.083 0 004.27-2.72l6.5-6.5" />
+                                                    </svg>
+                                                    Batch {{ $purchase['batch_code'] }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if($purchase['date_range'] || $purchase['time_range'])
+                                            <div class="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                                @if($purchase['date_range'])
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-12 8h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        {{ $purchase['date_range'] }}
+                                                    </span>
+                                                @endif
+                                                @if($purchase['time_range'])
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        {{ $purchase['time_range'] }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                        <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+                                            <div class="flex flex-wrap gap-2">
+                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold {{ $purchase['enrollment_status']['badge'] }}">
+                                                    {{ $purchase['enrollment_status']['label'] }}
+                                                </span>
+                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold {{ $purchase['payment_status']['badge'] }}">
+                                                    {{ $purchase['payment_status']['label'] }}
+                                                </span>
+                                            </div>
+                                            @if($purchase['order_total'])
+                                                <span class="text-sm font-semibold text-foreground">Rp {{ number_format($purchase['order_total'], 0, ',', '.') }}</span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                        @if($purchase['invoice_no'])
+                                            <span class="text-xs text-muted-foreground">Invoice: {{ $purchase['invoice_no'] }}</span>
+                                        @endif
+                                        @if($purchase['checkout_url'])
+                                            <a href="{{ $purchase['checkout_url'] }}" class="inline-flex items-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition">
+                                                Selesaikan Pembayaran
+                                            </a>
+                                        @endif
+                                    </div>
+                                    @if($purchase['payment_status']['value'] === 'pending' && $purchase['expired_at'])
+                                        <p class="mt-1 text-xs text-orange-600">Bayar sebelum {{ $purchase['expired_at'] }}</p>
                                     @endif
                                 </div>
                             @endforeach
-                        </div>
-
-                        @if($stats['enrollments'] > $recentEnrollments->count())
-                            <div class="mt-4 text-center">
-                                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Lihat Semua Bootcamp ?</a>
-                            </div>
-                        @endif
-                    @else
-                        <div class="text-center py-10 text-muted-foreground">
-                            Kamu belum mengikuti bootcamp apa pun. Yuk mulai eksplorasi program!
                         </div>
                     @endif
                 </div>

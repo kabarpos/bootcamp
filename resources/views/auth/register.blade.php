@@ -22,6 +22,11 @@
             </div>
 
             <div class="mt-4">
+                <x-label for="whatsapp_number" value="{{ __('Nomor WhatsApp') }}" class="text-foreground" />
+                <x-input id="whatsapp_number" class="block mt-1 w-full bg-background/50 border border-input rounded-lg focus:border-primary focus:ring focus:ring-primary/30" type="text" name="whatsapp_number" :value="old('whatsapp_number')" required inputmode="tel" autocomplete="tel" placeholder="Contoh: +6281234567890" />
+            </div>
+
+            <div class="mt-4">
                 <x-label for="password" value="{{ __('Password') }}" class="text-foreground" />
                 <x-input id="password" class="block mt-1 w-full bg-background/50 border border-input rounded-lg focus:border-primary focus:ring focus:ring-primary/30" type="password" name="password" required autocomplete="new-password" />
             </div>

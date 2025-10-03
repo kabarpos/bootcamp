@@ -15,4 +15,6 @@ interface EnrollmentRepositoryInterface
     public function countForUser(int $userId): int;
 
     public function countCertificatesForUser(int $userId): int;
+
+    public function getDetailedForUser(int $userId): Collection;
 }

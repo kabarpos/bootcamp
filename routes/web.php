@@ -18,13 +18,17 @@ Route::get('/about', [PublicController::class, 'about'])->name('public.about');
 Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 Route::get('/bootcamps', [PublicController::class, 'bootcamps'])->name('public.bootcamps');
 Route::get('/bootcamps/{slug}', [PublicController::class, 'bootcamp'])->name('public.bootcamp');
-Route::get('/bootcamps/{slug}/resources', [PublicController::class, 'resources'])->name('public.resources');
+Route::get('/bootcamps/{slug}/resources', [PublicController::class, 'resources'])
+    ->middleware(['auth', 'verified'])
+    ->name('public.resources');
 Route::get('/bootcamps/{slug}/assessments', [PublicController::class, 'assessments'])->name('public.assessments');
 Route::get('/bootcamps/{slug}/projects', [PublicController::class, 'projects'])->name('public.projects');
 
 // Authenticated student area & payment flow
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/student/dashboard', [PublicController::class, 'dashboard'])->name('public.dashboard');
+    Route::get('/student/bootcamps/{enrollment}', [PublicController::class, 'enrollmentDetail'])
+        ->name('student.enrollments.show');
 
     Route::get('/bootcamps/{slug}/enroll', [PaymentController::class, 'enroll'])->name('payment.enroll');
     Route::post('/bootcamps/{slug}/enroll', [PaymentController::class, 'processEnrollment'])->name('payment.process');
@@ -84,6 +88,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::get('orders/export/csv', [OrderController::class, 'export'])->name('orders.export');
         Route::get('orders/statistics', [OrderController::class, 'getStatistics'])->name('orders.statistics');
 
+        Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
         Route::resource('users', UserController::class);
         Route::resource('roles', RoleController::class);
     });

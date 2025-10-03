@@ -29,6 +29,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'whatsapp_number' => preg_replace('/[^0-9+]/', '', fake()->e164PhoneNumber()),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'two_factor_secret' => null,

@@ -22,14 +22,30 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'whatsapp_number' => ['required', 'string', 'min:8', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
+        $normalizedWhatsapp = $this->normalizeWhatsappNumber($input['whatsapp_number']);
+
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
+            'whatsapp_number' => $normalizedWhatsapp,
             'password' => Hash::make($input['password']),
         ]);
     }
+
+    private function normalizeWhatsappNumber(string $value): string
+    {
+        $normalized = preg_replace('/[\s\-()]/', '', trim($value));
+
+        if (! empty($normalized) && str_starts_with($normalized, '00')) {
+            $normalized = '+' . substr($normalized, 2);
+        }
+
+        return $normalized;
+    }
 }
+

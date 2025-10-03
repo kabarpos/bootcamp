@@ -81,6 +81,14 @@
                 @endif
             @endif
         </div>
+
+        <!-- WhatsApp Number -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="whatsapp_number" value="{{ __('Nomor WhatsApp') }}" />
+            <x-input id="whatsapp_number" type="text" class="mt-1 block w-full" wire:model.defer="state.whatsapp_number" required inputmode="tel" autocomplete="tel" />
+            <x-input-error for="whatsapp_number" class="mt-2" />
+        </div>
+
     </x-slot>
 
     <x-slot name="actions">

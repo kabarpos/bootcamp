@@ -37,12 +37,30 @@ class EloquentEnrollmentRepository implements EnrollmentRepositoryInterface
     {
         return $this->model->where('user_id', $userId)->count();
     }
-
     public function countCertificatesForUser(int $userId): int
     {
         return $this->model->where('user_id', $userId)
             ->whereHas('certificate', fn ($query) => $query->whereNotNull('issued_at'))
             ->count();
     }
+
+    public function getDetailedForUser(int $userId): Collection
+    {
+        return $this->model->with([
+            'batch.bootcamp',
+            'batch.city',
+            'orders' => function ($query) {
+                $query->latest();
+            },
+            'orders.payments',
+        ])
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
 }
+
+
+
 

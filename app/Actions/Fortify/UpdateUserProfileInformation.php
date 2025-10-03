@@ -20,6 +20,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'whatsapp_number' => ['required', 'string', 'min:8', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
         ])->validateWithBag('updateProfileInformation');
 
@@ -27,13 +28,18 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user->updateProfilePhoto($input['photo']);
         }
 
+        $normalizedWhatsapp = $this->normalizeWhatsappNumber($input['whatsapp_number'] ?? '');
+
         if ($input['email'] !== $user->email &&
             $user instanceof MustVerifyEmail) {
-            $this->updateVerifiedUser($user, $input);
+            $this->updateVerifiedUser($user, array_merge($input, [
+                'whatsapp_number' => $normalizedWhatsapp,
+            ]));
         } else {
             $user->forceFill([
                 'name' => $input['name'],
                 'email' => $input['email'],
+                'whatsapp_number' => $normalizedWhatsapp,
             ])->save();
         }
     }
@@ -48,9 +54,21 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         $user->forceFill([
             'name' => $input['name'],
             'email' => $input['email'],
+            'whatsapp_number' => $this->normalizeWhatsappNumber($input['whatsapp_number'] ?? ''),
             'email_verified_at' => null,
         ])->save();
 
         $user->sendEmailVerificationNotification();
+    }
+
+    private function normalizeWhatsappNumber(string $value): string
+    {
+        $normalized = preg_replace('/[\s\-()]/', '', trim($value));
+
+        if (! empty($normalized) && str_starts_with($normalized, '00')) {
+            $normalized = '+' . substr($normalized, 2);
+        }
+
+        return $normalized;
     }
 }

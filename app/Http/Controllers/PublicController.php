@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enrollment;
 use App\Models\Mentor;
 use App\Repositories\Contracts\BlogPostRepositoryInterface;
 use App\Repositories\Contracts\BootcampRepositoryInterface;
@@ -128,17 +129,237 @@ class PublicController extends Controller
 
         $recentEnrollments = $this->enrollmentRepository->getRecentForUser($userId, 6);
 
+        $purchases = $this->preparePurchases($userId);
+
         return [
             'blogPosts' => $blogPosts,
             'upcomingEvents' => $upcomingEvents,
             'stats' => $stats,
             'recentEnrollments' => $recentEnrollments,
+            'purchases' => $purchases,
         ];
+    }
+
+    private function preparePurchases(int $userId): Collection
+    {
+        return $this->enrollmentRepository->getDetailedForUser($userId)
+            ->map(function ($enrollment) {
+                $batch = $enrollment->batch;
+                $bootcamp = $batch?->bootcamp;
+                $latestOrder = $enrollment->orders->first();
+                $paymentStatusValue = $latestOrder?->status ?? 'pending';
+
+                $paymentStatus = $this->paymentStatusMeta($paymentStatusValue);
+                $enrollmentStatus = $this->enrollmentStatusMeta($enrollment->status);
+
+                return [
+                    'id' => $enrollment->id,
+                    'bootcamp_title' => $bootcamp?->title ?? 'Bootcamp',
+                    'bootcamp_slug' => $bootcamp?->slug,
+                    'bootcamp_mode' => $bootcamp?->mode,
+                    'bootcamp_level' => $bootcamp?->level,
+                    'batch_code' => $batch?->code,
+                    'date_range' => $this->formatDateRange($batch),
+                    'time_range' => $this->formatTimeRange($batch),
+                    'payment_status' => $paymentStatus,
+                    'enrollment_status' => $enrollmentStatus,
+                    'invoice_no' => $latestOrder?->invoice_no,
+                    'order_total' => $latestOrder?->total,
+                    'expired_at' => optional($latestOrder?->expired_at)->format('d M Y H:i'),
+                    'detail_url' => route('student.enrollments.show', $enrollment->id),
+                    'checkout_url' => ($paymentStatusValue === 'pending' && $latestOrder) ? route('payment.checkout', $latestOrder->id) : null,
+                ];
+            })
+            ->sortBy(function (array $purchase) {
+                return $purchase['payment_status']['value'] === 'pending' ? 0 : 1;
+            })
+            ->values();
+    }
+
+
+    public function enrollmentDetail(Enrollment $enrollment)
+    {
+        if ($enrollment->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $enrollment->load([
+            'batch.bootcamp',
+            'batch.city',
+            'orders.payments',
+        ]);
+
+        $batch = $enrollment->batch;
+        $bootcamp = $batch?->bootcamp;
+        $latestOrder = $enrollment->orders->sortByDesc('created_at')->first();
+        $latestPayment = $latestOrder?->payments->sortByDesc('created_at')->first();
+
+        return view('public.student.enrollment', [
+            'enrollment' => $enrollment,
+            'bootcamp' => $bootcamp,
+            'batch' => $batch,
+            'latestOrder' => $latestOrder,
+            'latestPayment' => $latestPayment,
+            'paymentMeta' => $this->paymentStatusMeta($latestOrder?->status ?? 'pending'),
+            'enrollmentMeta' => $this->enrollmentStatusMeta($enrollment->status),
+            'schedule' => [
+                'date_range' => $this->formatDateRange($batch),
+                'time_range' => $this->formatTimeRange($batch),
+                'start_date' => optional($batch?->start_date)->format('d M Y'),
+                'end_date' => optional($batch?->end_date)->format('d M Y'),
+            ],
+            'location' => [
+                'mode_label' => $this->bootcampModeLabel($bootcamp?->mode),
+                'city' => optional($batch?->city)->name,
+                'venue_name' => $batch?->venue_name,
+                'venue_address' => $batch?->venue_address,
+                'meeting_platform' => $batch?->meeting_platform,
+                'meeting_link' => $batch?->meeting_link,
+                'map_link' => $this->buildMapLink($batch),
+            ],
+            'resourcesUrl' => $bootcamp?->slug ? route('public.resources', $bootcamp->slug) : null,
+            'checkoutUrl' => ($latestOrder && $latestOrder->status === 'pending') ? route('payment.checkout', $latestOrder->id) : null,
+        ]);
+    }
+
+    private function paymentStatusMeta(?string $status): array
+    {
+        $normalized = strtolower($status ?? 'pending');
+
+        return match ($normalized) {
+            'paid', 'settlement' => [
+                'value' => 'paid',
+                'label' => 'Payment Complete',
+                'badge' => 'bg-green-100 text-green-800',
+            ],
+            'expired' => [
+                'value' => 'expired',
+                'label' => 'Payment Expired',
+                'badge' => 'bg-orange-100 text-orange-800',
+            ],
+            'failed', 'cancel', 'deny' => [
+                'value' => 'failed',
+                'label' => 'Payment Failed',
+                'badge' => 'bg-red-100 text-red-800',
+            ],
+            'refunded', 'partial_refund' => [
+                'value' => 'refunded',
+                'label' => 'Payment Refunded',
+                'badge' => 'bg-purple-100 text-purple-800',
+            ],
+            default => [
+                'value' => 'pending',
+                'label' => 'Pending Payment',
+                'badge' => 'bg-yellow-100 text-yellow-800',
+            ],
+        };
+    }
+
+    private function enrollmentStatusMeta(?string $status): array
+    {
+        $normalized = strtolower($status ?? 'pending');
+
+        return match ($normalized) {
+            'confirmed' => [
+                'value' => 'confirmed',
+                'label' => 'Enrollment Confirmed',
+                'badge' => 'bg-blue-100 text-blue-800',
+            ],
+            'completed' => [
+                'value' => 'completed',
+                'label' => 'Program Completed',
+                'badge' => 'bg-green-100 text-green-800',
+            ],
+            'cancelled' => [
+                'value' => 'cancelled',
+                'label' => 'Enrollment Cancelled',
+                'badge' => 'bg-red-100 text-red-800',
+            ],
+            default => [
+                'value' => 'pending',
+                'label' => 'Awaiting Confirmation',
+                'badge' => 'bg-yellow-100 text-yellow-800',
+            ],
+        };
+    }
+
+    private function formatDateRange($batch): ?string
+    {
+        if (! $batch?->start_date) {
+            return null;
+        }
+
+        $start = optional($batch->start_date)->format('d M Y');
+        $end = optional($batch->end_date)->format('d M Y');
+
+        if ($start && $end && $start !== $end) {
+            return $start . ' - ' . $end;
+        }
+
+        return $start ?? $end;
+    }
+
+    private function formatTimeRange($batch): ?string
+    {
+        if (! $batch) {
+            return null;
+        }
+
+        $start = optional($batch->start_time)->format('H:i');
+        $end = optional($batch->end_time)->format('H:i');
+
+        if ($start && $end) {
+            return $start . ' - ' . $end;
+        }
+
+        return $start ?? $end;
+    }
+
+    private function bootcampModeLabel(?string $mode): string
+    {
+        return match ($mode) {
+            'online' => 'Online',
+            'offline' => 'Offline',
+            'hybrid' => 'Hybrid',
+            default => 'Bootcamp',
+        };
+    }
+
+    private function buildMapLink($batch): ?string
+    {
+        if (! $batch) {
+            return null;
+        }
+
+        $parts = array_filter([
+            $batch->venue_name,
+            $batch->venue_address,
+            optional($batch->city)->name,
+        ]);
+
+        if (empty($parts)) {
+            return null;
+        }
+
+        return 'https://www.google.com/maps/search/?api=1&query=' . urlencode(implode(', ', $parts));
     }
 
     public function resources($slug)
     {
         $bootcamp = $this->bootcampRepository->findActiveBySlug($slug);
+
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $hasAccess = Enrollment::where('user_id', Auth::id())
+            ->whereHas('batch', fn ($query) => $query->where('bootcamp_id', $bootcamp->id))
+            ->exists();
+
+        if (! $hasAccess) {
+            return redirect()->route('public.bootcamp', $bootcamp->slug)
+                ->with('error', 'Anda harus terdaftar pada bootcamp ini untuk mengakses materi.');
+        }
 
         $settings = $this->settingRepository->getValues([
             'resource_1_title', 'resource_1_description', 'resource_1_size', 'resource_1_action', 'resource_1_link',
@@ -190,4 +411,5 @@ class PublicController extends Controller
         return view('public.projects', compact('bootcamp'));
     }
 }
+
 
