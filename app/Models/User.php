@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'whatsapp_number',
         'password',
     ];
 
@@ -64,6 +65,23 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    public function setWhatsappNumberAttribute($value): void
+    {
+        if ($value === null) {
+            $this->attributes['whatsapp_number'] = null;
+            return;
+        }
+
+        $normalized = preg_replace('/[\s\-()]/', '', trim($value));
+
+        if ($normalized !== '' && str_starts_with($normalized, '00')) {
+            $normalized = '+' . substr($normalized, 2);
+        }
+
+        $this->attributes['whatsapp_number'] = $normalized !== '' ? $normalized : null;
+    }
+
 
     /**
      * Get the enrollments for the user.
