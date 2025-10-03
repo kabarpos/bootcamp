@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -29,23 +30,31 @@ class CreateNewUser implements CreatesNewUsers
 
         $normalizedWhatsapp = $this->normalizeWhatsappNumber($input['whatsapp_number']);
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'whatsapp_number' => $normalizedWhatsapp,
             'password' => Hash::make($input['password']),
         ]);
+
+        $defaultRole = Role::firstOrCreate(
+            ['name' => 'user'],
+            ['guard_name' => 'web']
+        );
+
+        $user->roles()->syncWithoutDetaching([$defaultRole->id]);
+
+        return $user;
     }
 
     private function normalizeWhatsappNumber(string $value): string
     {
         $normalized = preg_replace('/[\s\-()]/', '', trim($value));
 
-        if (! empty($normalized) && str_starts_with($normalized, '00')) {
+        if (str_starts_with($normalized, '00')) {
             $normalized = '+' . substr($normalized, 2);
         }
 
         return $normalized;
     }
 }
-

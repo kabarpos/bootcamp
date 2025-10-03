@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EnrollmentController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicController;
@@ -89,6 +90,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::get('orders/statistics', [OrderController::class, 'getStatistics'])->name('orders.statistics');
 
         Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
+        Route::resource('permissions', PermissionController::class)->except(['show']);
         Route::resource('users', UserController::class);
         Route::resource('roles', RoleController::class);
     });
+
+
+
+
+
