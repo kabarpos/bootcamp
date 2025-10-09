@@ -1,5 +1,6 @@
-<div class="mt-6 bg-card/50 backdrop-blur-sm rounded-lg shadow p-6 border border-border">
-    <div class="flow-root">
+<div class="glass-card rounded-[24px] p-6">
+    <span class="spotlight-ring"></span>
+    <div class="space-y-4">
         {{ $slot }}
     </div>
 </div>

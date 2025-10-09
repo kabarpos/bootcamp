@@ -1,47 +1,43 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="min-h-screen bg-background">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 mb-6">
-                <svg class="h-12 w-12 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </div>
-            
-            <h1 class="text-3xl font-bold text-foreground sm:text-4xl">
-                Payment Failed
-            </h1>
-            <p class="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Unfortunately, your payment could not be processed. Please try again or contact support.
-            </p>
-            
-            <div class="mt-10 bg-card rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-                <h2 class="text-xl font-semibold text-foreground mb-4">What would you like to do?</h2>
-                
-                <div class="space-y-4">
-                    <p class="text-muted-foreground">
-                        Your enrollment has not been completed. You can try the payment again or contact our support team for assistance.
-                    </p>
-                    
-                    <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <p class="text-sm text-yellow-800">
-                            <strong>Note:</strong> If you believe this is an error, please contact our support team with your order details.
-                        </p>
-                    </div>
+<x-public.hero-section 
+    titleLine1="Payment Pending"
+    titleLine2="Action Required"
+    description="We could not confirm the transaction. Please retry your payment or contact support if you believe this is an error."
+    :stats="[
+        ['label' => 'Order ID', 'value' => $order->invoice_no ?? '—'],
+        ['label' => 'Amount due', 'value' => isset($order) ? 'Rp ' . number_format($order->total, 0, ',', '.') : '—'],
+        ['label' => 'Status', 'value' => 'Pending']
+    ]"
+/>
+
+<section class="relative py-24">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_rgba(239,68,68,0.12),_transparent_60%)]"></div>
+    <div class="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <article class="glass-card rounded-[28px] p-8">
+            <span class="spotlight-ring"></span>
+            <div class="flex flex-col items-center text-center">
+                <div class="flex h-20 w-20 items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 text-rose-200">
+                    <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </div>
+                <h2 class="mt-6 text-lg font-semibold text-white">Payment not completed</h2>
+                <p class="mt-3 text-sm text-slate-300">
+                    Your payment was not processed. You can retry completing the purchase or reach out to our team for assistance.
+                </p>
             </div>
-            
-            <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                <x-public.button href="{{ route('public.dashboard') }}" variant="primary" class="px-6 py-3">
-                    Go to Dashboard
+
+            <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <x-public.button href="{{ route('payment.checkout', $order->id ?? null) }}" class="px-6 py-3 text-sm">
+                    Retry Payment
                 </x-public.button>
-                <x-public.button href="mailto:support@bootcamp.com" variant="secondary" class="px-6 py-3">
+                <x-public.button href="{{ route('public.contact') }}" variant="secondary" class="px-6 py-3 text-sm">
                     Contact Support
                 </x-public.button>
             </div>
-        </div>
+        </article>
     </div>
-</div>
+</section>
 @endsection

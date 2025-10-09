@@ -1,44 +1,41 @@
-<div class="relative pl-8 pb-8 group">
-    <!-- Vertical line -->
-    <div class="absolute left-0 top-0 h-full w-0.5 bg-border"></div>
+@php
+    $status = $status ?? 'upcoming';
+    $badgeClasses = match($status) {
+        'completed' => 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
+        'in-progress' => 'border-amber-400/30 bg-amber-500/10 text-amber-200',
+        default => 'border-slate-400/30 bg-slate-600/20 text-slate-200',
+    };
+@endphp
+
+<div class="relative pl-8 pb-10">
+    <div class="absolute left-0 top-0 h-full w-px bg-white/10"></div>
+    <span class="absolute left-0 top-0 flex h-3 w-3 -translate-x-[7px] rounded-full {{ $status === 'completed' ? 'bg-emerald-300' : ($status === 'in-progress' ? 'bg-amber-300' : 'bg-white/30') }}"></span>
     
-    <!-- Circle marker -->
-    <div class="absolute left-0 top-0 h-4 w-4 rounded-full bg-primary -translate-x-1/2 translate-y-1
-        @if($status === 'completed') bg-primary
-        @elseif($status === 'in-progress') bg-yellow-500
-        @else bg-border
-        @endif">
-    </div>
-    
-    <div class="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-        <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-foreground">{{ $title }}</h3>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                @if($status === 'completed') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
-                @elseif($status === 'in-progress') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
-                @else bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
-                @endif">
-                {{ ucfirst(str_replace('-', ' ', $status)) }}
+    <article class="glass-card rounded-[24px] p-6">
+        <span class="spotlight-ring"></span>
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-semibold text-white">{{ $title }}</h3>
+                <p class="mt-2 text-sm text-slate-300">{{ $description }}</p>
+            </div>
+            <span class="inline-flex items-center rounded-full border px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.28em] {{ $badgeClasses }}">
+                {{ str($status)->replace('-', ' ')->title() }}
             </span>
         </div>
-        <p class="mt-2 text-muted-foreground">
-            {{ $description }}
-        </p>
-        <div class="mt-4">
-            <div class="flex justify-between text-sm text-muted-foreground">
-                <span>{{ $duration }}</span>
-                <span>{{ $lessons }} lessons</span>
+        <div class="mt-4 flex flex-wrap gap-4 text-xs text-slate-400">
+            @if(isset($duration))
+                <span class="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1">{{ $duration }}</span>
+            @endif
+            @if(isset($lessons))
+                <span class="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1">{{ $lessons }} lessons</span>
+            @endif
+        </div>
+        @if(isset($link) && $status !== 'completed')
+            <div class="mt-6 flex justify-end">
+                <x-public.button href="{{ $link }}" class="px-5 py-2 text-[0.75rem]">
+                    {{ $status === 'in-progress' ? 'Continue' : 'Start' }}
+                </x-public.button>
             </div>
-        </div>
-        @if($status !== 'completed')
-        <div class="mt-4">
-            <a href="{{ $link ?? '#' }}" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors duration-300">
-                {{ $status === 'in-progress' ? 'Continue' : 'Start' }}
-                <svg class="inline-block h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-            </a>
-        </div>
         @endif
-    </div>
+    </article>
 </div>

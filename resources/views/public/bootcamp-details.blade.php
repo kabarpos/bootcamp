@@ -1,264 +1,137 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="min-h-screen bg-background">
-    @if(isset($bootcamp))
-        <x-public.breadcrumb :items="[
-            ['label' => 'Home', 'url' => route('public.homepage')],
-            ['label' => 'Bootcamps', 'url' => route('public.bootcamps')],
-            ['label' => $bootcamp->title, 'url' => '#']
-        ]" />
-        
-        <x-public.hero-section 
-            titleLine1="{{ $bootcamp->title }}"
-            titleLine2="Bootcamp Program"
-            description="{{ $bootcamp->short_desc }}"
-        />
-    @else
-        <x-public.breadcrumb :items="[
-            ['label' => 'Home', 'url' => route('public.homepage')],
-            ['label' => 'Bootcamps', 'url' => route('public.bootcamps')],
-            ['label' => ucfirst(str_replace('-', ' ', $slug)), 'url' => '#']
-        ]" />
-        
-        <x-public.hero-section 
-            titleLine1="{{ ucfirst(str_replace('-', ' ', $slug)) }}"
-            titleLine2="Bootcamp Program"
-            description="An intensive program designed to transform you into a professional in just a few weeks."
-        />
-    @endif
-    
-    <x-public.program-overview-section>
-        <!-- Program Overview Section Start -->
-        <x-public.program-overview-card title="Curriculum Highlights">
-            <x-public.checklist>
-                <x-public.checklist-item content="Hands-on projects with real-world applications" />
-                <x-public.checklist-item content="Mentorship from industry professionals" />
-                <x-public.checklist-item content="Career services and job placement assistance" />
-                <x-public.checklist-item content="Access to our alumni network" />
-                <x-public.checklist-item content="Lifetime access to course materials" />
-            </x-public.checklist>
-        </x-public.program-overview-card>
-        
-        <x-public.program-overview-card title="Program Details">
-            <x-public.program-details>
-                @if(isset($bootcamp))
-                    <x-public.program-detail-item 
-                        label="Duration"
-                        value="{{ $bootcamp->duration_hours }} hours"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Mode"
-                        value="{{ ucfirst($bootcamp->mode) }}"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Level"
-                        value="{{ ucfirst($bootcamp->level) }}"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Prerequisites"
-                        value="Basic computer skills"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Certification"
-                        value="Yes"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Cost"
-                        value="Rp {{ number_format($bootcamp->base_price, 0, ',', '.') }}"
-                        valueClass="text-sm font-bold text-foreground"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Categories"
-                        value="{{ $bootcamp->categories->pluck('name')->implode(', ') }}"
-                        class="border-t border-border"
-                    />
-                @else
-                    <x-public.program-detail-item 
-                        label="Duration"
-                        value="12 Weeks"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Format"
-                        value="Full-time, In-person"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Prerequisites"
-                        value="Basic computer skills"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Certification"
-                        value="Yes"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Cost"
-                        value="$2,999"
-                        valueClass="text-sm font-bold text-foreground"
-                        class="border-t border-border"
-                    />
-                    
-                    <x-public.program-detail-item 
-                        label="Next Start Date"
-                        value="January 15, 2026"
-                        class="border-t border-border"
-                    />
-                @endif
-            </x-public.program-details>
-        </x-public.program-overview-card>
-        
-        <x-public.program-overview-card title="Enrollment">
-            <div class="flex justify-center py-6" style="background-color: #e3f2fd; border: 2px solid #2196f3; border-radius: 8px; padding: 10px;">
-                @auth
-                    @if(isset($bootcamp))
-                        <x-public.button href="{{ route('payment.enroll', $bootcamp->slug) }}" variant="primary" class="px-8 py-3 text-lg">
-                            Enroll Now
-                        </x-public.button>
-                    @else
-                        <p class="text-muted-foreground">Bootcamp not available</p>
-                    @endif
-                @else
-                    <x-public.button href="{{ route('login') }}" variant="primary" class="px-8 py-3 text-lg">
-                        Login to Enroll
-                    </x-public.button>
-                @endauth
-            </div>
-        </x-public.program-overview-card>
-    </x-public.program-overview-section>
-        <!-- Program Overview Section End -->
-    
-    <!-- Debug: Enrollment section marker -->
-    <div style="background: #ffeb3b; color: #000; padding: 10px; text-align: center; margin: 20px 0;">
-        <strong>ENROLLMENT SECTION MARKER</strong> - If you can see this, the enrollment section should be above
-        <br><small>Auth check: {{ \Illuminate\Support\Facades\Auth::check() ? 'Logged in' : 'Not logged in' }}</small>
-        <br><small>Bootcamp isset: {{ isset($bootcamp) ? 'Yes' : 'No' }}</small>
-    </div>
-    
-    <x-public.syllabus-section>
-        <x-public.syllabus-module title="Module 1: Fundamentals (Weeks 1-2)">
-            <x-public.syllabus-item content="Introduction to programming concepts" />
-            <x-public.syllabus-item content="HTML/CSS basics" />
-            <x-public.syllabus-item content="JavaScript fundamentals" />
-            <x-public.syllabus-item content="Version control with Git" />
-        </x-public.syllabus-module>
-        
-        <x-public.syllabus-module title="Module 2: Frontend Development (Weeks 3-5)">
-            <x-public.syllabus-item content="Advanced JavaScript and ES6+" />
-            <x-public.syllabus-item content="React.js framework" />
-            <x-public.syllabus-item content="State management" />
-            <x-public.syllabus-item content="Responsive design principles" />
-        </x-public.syllabus-module>
-        
-        <x-public.syllabus-module title="Module 3: Backend Development (Weeks 6-8)">
-            <x-public.syllabus-item content="Node.js and Express" />
-            <x-public.syllabus-item content="Database design with MongoDB" />
-            <x-public.syllabus-item content="RESTful API development" />
-            <x-public.syllabus-item content="Authentication and security" />
-        </x-public.syllabus-module>
-        
-        <x-public.syllabus-module title="Module 4: Advanced Topics (Weeks 9-10)">
-            <x-public.syllabus-item content="Testing with Jest" />
-            <x-public.syllabus-item content="Deployment and DevOps" />
-            <x-public.syllabus-item content="Performance optimization" />
-            <x-public.syllabus-item content="Project planning and management" />
-        </x-public.syllabus-module>
-        
-        <x-public.syllabus-module title="Module 5: Capstone Project (Weeks 11-12)">
-            <x-public.syllabus-item content="Project ideation and planning" />
-            <x-public.syllabus-item content="Full-stack application development" />
-            <x-public.syllabus-item content="Presentation and portfolio preparation" />
-            <x-public.syllabus-item content="Job search and interview preparation" />
-        </x-public.syllabus-module>
-    </x-public.syllabus-section>
-    
-    <div class="py-12 bg-card/80 backdrop-blur-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-center space-x-4 flex-wrap">
-                @if(isset($bootcamp))
-                    <x-public.button href="{{ route('public.resources', $bootcamp->slug) }}" variant="secondary" class="mb-2">
-                        View Additional Resources
-                    </x-public.button>
-                    <x-public.button href="{{ route('public.assessments', $bootcamp->slug) }}" variant="secondary" class="mb-2">
-                        View Assessments
-                    </x-public.button>
-                    <x-public.button href="{{ route('public.projects', $bootcamp->slug) }}" variant="secondary" class="mb-2">
-                        View Projects
-                    </x-public.button>
-                @else
-                    <x-public.button href="{{ route('public.resources', $slug) }}" variant="secondary" class="mb-2">
-                        View Additional Resources
-                    </x-public.button>
-                    <x-public.button href="{{ route('public.assessments', $slug) }}" variant="secondary" class="mb-2">
-                        View Assessments
-                    </x-public.button>
-                    <x-public.button href="{{ route('public.projects', $slug) }}" variant="secondary" class="mb-2">
-                        View Projects
-                    </x-public.button>
-                @endif
-            </div>
+@php
+    $currentBootcamp = $bootcamp ?? null;
+    $title = $currentBootcamp->title ?? ucfirst(str_replace('-', ' ', $slug ?? 'Bootcamp'));
+    $shortDescription = $currentBootcamp->short_desc ?? 'An intensive program designed to transform you into a professional in just a few weeks.';
+    $durationLabel = $currentBootcamp?->duration_hours ? $currentBootcamp->duration_hours . ' hours' : '12 weeks';
+    $modeLabel = $currentBootcamp?->mode ? ucfirst($currentBootcamp->mode) : 'Hybrid';
+    $levelLabel = $currentBootcamp?->level ? ucfirst($currentBootcamp->level) : 'All levels';
+    $priceLabel = $currentBootcamp?->base_price ? 'Rp ' . number_format($currentBootcamp->base_price, 0, ',', '.') : 'Rp 12.500.000';
+    $heroStats = [
+        ['label' => 'Duration', 'value' => $durationLabel],
+        ['label' => 'Bootcamp Mode', 'value' => $modeLabel],
+        ['label' => 'Level', 'value' => $levelLabel],
+    ];
+@endphp
+
+<x-public.breadcrumb :items="[
+    ['label' => 'Home', 'url' => route('public.homepage')],
+    ['label' => 'Bootcamps', 'url' => route('public.bootcamps')],
+    ['label' => $title, 'url' => '#']
+]" />
+
+<x-public.hero-section 
+    :titleLine1="$title"
+    titleLine2="Bootcamp Program"
+    :description="$shortDescription"
+    :stats="$heroStats"
+/>
+
+<x-public.program-overview-section>
+    <x-public.program-overview-card title="Curriculum Highlights">
+        <x-public.checklist>
+            <x-public.checklist-item content="Hands-on projects with real-world applications" />
+            <x-public.checklist-item content="Mentorship from industry professionals" />
+            <x-public.checklist-item content="Career services and job placement assistance" />
+            <x-public.checklist-item content="Access to our alumni network" />
+            <x-public.checklist-item content="Lifetime access to course materials" />
+        </x-public.checklist>
+    </x-public.program-overview-card>
+
+    <x-public.program-overview-card title="Program Details">
+        <x-public.program-details>
+            <x-public.program-detail-item label="Duration" :value="$durationLabel" />
+            <x-public.program-detail-item label="Mode" :value="$modeLabel" />
+            <x-public.program-detail-item label="Level" :value="$levelLabel" />
+            <x-public.program-detail-item label="Prerequisites" value="Basic computer skills" />
+            <x-public.program-detail-item label="Certification" value="Yes" />
+            <x-public.program-detail-item label="Investment" :value="$priceLabel" />
+            <x-public.program-detail-item label="Categories" :value="$currentBootcamp?->categories->pluck('name')->implode(', ') ?? 'Product, Engineering'" />
+        </x-public.program-details>
+    </x-public.program-overview-card>
+</x-public.program-overview-section>
+
+<x-public.syllabus-section>
+    <x-public.syllabus-module title="Module 1: Foundations">
+        <x-public.syllabus-item content="HTML & Semantic structure" />
+        <x-public.syllabus-item content="Responsive design principles" />
+        <x-public.syllabus-item content="CSS utility frameworks" />
+    </x-public.syllabus-module>
+    <x-public.syllabus-module title="Module 2: Frontend Engineering">
+        <x-public.syllabus-item content="Modern JavaScript (ES2025)" />
+        <x-public.syllabus-item content="Component-driven development" />
+        <x-public.syllabus-item content="State management patterns" />
+    </x-public.syllabus-module>
+    <x-public.syllabus-module title="Module 3: Backend APIs">
+        <x-public.syllabus-item content="RESTful design" />
+        <x-public.syllabus-item content="Database modeling" />
+        <x-public.syllabus-item content="Authentication & security" />
+    </x-public.syllabus-module>
+    <x-public.syllabus-module title="Module 4: DevOps & Deployment">
+        <x-public.syllabus-item content="CI/CD pipelines" />
+        <x-public.syllabus-item content="Cloud infrastructure essentials" />
+        <x-public.syllabus-item content="Observability & SLOs" />
+    </x-public.syllabus-module>
+</x-public.syllabus-section>
+
+<section class="relative py-24">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_60%)]"></div>
+    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap justify-center gap-3">
+            <x-public.button :href="$currentBootcamp ? route('public.resources', $currentBootcamp->slug) : route('public.resources', $slug ?? 'resources')" variant="secondary">
+                View Additional Resources
+            </x-public.button>
+            <x-public.button :href="$currentBootcamp ? route('public.assessments', $currentBootcamp->slug) : route('public.assessments', $slug ?? 'assessments')" variant="secondary">
+                View Assessments
+            </x-public.button>
+            <x-public.button :href="$currentBootcamp ? route('public.projects', $currentBootcamp->slug) : route('public.projects', $slug ?? 'projects')" variant="secondary">
+                View Projects
+            </x-public.button>
         </div>
     </div>
-    
-    <x-public.instructor-section 
-        image="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-        name="Alex Johnson"
-        position="Senior Software Engineer at TechCorp"
-        bio1="Alex has over 12 years of experience in web development and has worked with companies like Google, Microsoft, and several startups. He specializes in full-stack development and has led teams of developers on complex projects."
-        bio2="As an instructor, Alex focuses on practical skills and real-world applications. His teaching style is engaging and ensures that students understand both the how and why of development practices."
-    >
-        <x-slot name="rating">
-            <x-public.rating stars="5" />
-        </x-slot>
-        <x-slot name="reviews">4.9/5 from 128 reviews</x-slot>
-    </x-public.instructor-section>
-    
-    <x-public.testimonials-section>
-        <x-public.testimonial-card
-            image="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            name="Jessica Miller"
-            position="Frontend Developer"
-            content="This bootcamp completely changed my career trajectory. The instructors were incredibly knowledgeable and supportive throughout the entire process."
-            rating="5"
-            date="3 months ago"
-        />
-        
-        <x-public.testimonial-card
-            image="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            name="Marcus Williams"
-            position="Full-Stack Developer"
-            content="The hands-on projects were invaluable. I was able to showcase my work during interviews and demonstrate my skills to potential employers."
-            rating="5"
-            date="1 month ago"
-        />
-        
-        <x-public.testimonial-card
-            image="https://images.unsplash.com/photo-1505840717430-882ce147ef2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            name="Sophia Chen"
-            position="UX Designer"
-            content="The career services team helped me prepare for interviews and connected me with potential employers. I couldn't have asked for better support."
-            rating="5"
-            date="2 weeks ago"
-        />
-    </x-public.testimonials-section>
-    
+</section>
 
-    <x-public.cta-section />
-</div>
+<x-public.instructor-section 
+    image="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+    name="Alex Johnson"
+    position="Senior Software Engineer at TechCorp"
+    bio1="Alex has over 12 years of experience in web development and has worked with companies like Google, Microsoft, and several startups."
+    bio2="As an instructor, Alex focuses on practical skills and real-world applications to ensure you master both fundamentals and advanced techniques."
+>
+    <x-slot name="rating">
+        <x-public.rating stars="5" />
+    </x-slot>
+    <x-slot name="reviews">4.9/5 from 128 reviews</x-slot>
+</x-public.instructor-section>
+
+<x-public.testimonials-section>
+    <x-public.testimonial-card
+        image="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+        name="Jessica Miller"
+        position="Frontend Developer"
+        content="This bootcamp completely changed my career trajectory. The instructors were incredibly knowledgeable and supportive throughout the entire process."
+        rating="5"
+        date="3 months ago"
+    />
+    <x-public.testimonial-card
+        image="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+        name="Marcus Williams"
+        position="Full-Stack Developer"
+        content="The hands-on projects were invaluable. I was able to showcase my work during interviews and demonstrate my skills to potential employers."
+        rating="5"
+        date="1 month ago"
+    />
+    <x-public.testimonial-card
+        image="https://images.unsplash.com/photo-1505840717430-882ce147ef2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+        name="Sophia Chen"
+        position="UX Designer"
+        content="The career services team helped me prepare for interviews and connected me with potential employers. I couldn't have asked for better support."
+        rating="5"
+        date="2 weeks ago"
+    />
+</x-public.testimonials-section>
+
+<x-public.cta-section />
 @endsection

@@ -1,6 +1,6 @@
-<li class="py-2 flex items-start">
-    <svg class="flex-shrink-0 h-5 w-5 text-primary mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+<li class="flex items-start gap-3 text-sm text-slate-300">
+    <svg class="mt-0.5 h-4 w-4 text-sky-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
     </svg>
-    <span class="ml-3 text-base text-muted-foreground">{{ $content }}</span>
+    <span>{{ $content }}</span>
 </li>

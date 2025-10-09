@@ -1,44 +1,46 @@
-<div class="bg-card/80 backdrop-blur-sm border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-    <div class="p-6">
-        <div class="flex items-center justify-between">
-            <h3 class="text-xl font-semibold text-foreground">{{ $title }}</h3>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
-                @if($status === 'completed') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
-                @elseif($status === 'in-progress') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
-                @else bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
-                @endif">
-                {{ ucfirst(str_replace('-', ' ', $status)) }}
+@php
+    $status = $status ?? 'in-progress';
+    $statusStyles = match($status) {
+        'completed' => 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
+        'in-progress' => 'border-amber-400/30 bg-amber-500/10 text-amber-200',
+        default => 'border-sky-400/30 bg-sky-500/10 text-sky-200',
+    };
+    $ctaHref = $status === 'completed' ? ($downloadLink ?? '#') : ($continueLink ?? '#');
+    $ctaLabel = $status === 'completed'
+        ? ($downloadLabel ?? 'Download Certificate')
+        : ($actionText ?? 'Continue');
+@endphp
+
+<article class="glass-card group flex h-full flex-col justify-between rounded-[26px] p-6">
+    <span class="spotlight-ring"></span>
+    <div class="space-y-5">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <h3 class="text-lg font-semibold text-white">{{ $title }}</h3>
+                @if(isset($description))
+                    <p class="mt-2 text-sm text-slate-300">{{ $description }}</p>
+                @endif
+            </div>
+            <span class="inline-flex items-center rounded-full border px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.28em] {{ $statusStyles }}">
+                {{ str($status)->replace('-', ' ')->title() }}
             </span>
         </div>
-        <p class="mt-2 text-muted-foreground">
-            {{ $description }}
-        </p>
-        <div class="mt-4">
-            @if($status === 'completed')
+
+        @if($status === 'completed' && isset($completedDate))
             <x-public.progress-bar :percentage="100" :label="'Completed on ' . $completedDate" />
-            @else
-            <x-public.progress-bar :percentage="$progress ?? 0" :label="$progressLabel ?? 'In Progress'" />
-            @endif
-        </div>
+        @elseif(isset($progress))
+            <x-public.progress-bar :percentage="$progress" :label="$progressLabel ?? 'In Progress'" />
+        @endif
+
+        @if(isset($duration))
+            <p class="text-xs text-slate-400">Estimated effort: {{ $duration }}</p>
+        @endif
     </div>
-    <div class="px-6 py-4 bg-card/50 border-t border-border">
-        <div class="flex justify-between items-center">
-            <span class="text-sm text-muted-foreground">{{ $duration }}</span>
-            @if($status === 'completed')
-            <a href="{{ $downloadLink ?? '#' }}" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors duration-300">
-                Download Certificate
-                <svg class="inline-block h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-            </a>
-            @else
-            <a href="{{ $continueLink ?? '#' }}" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors duration-300">
-                {{ $actionText ?? 'Continue' }}
-                <svg class="inline-block h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-            </a>
-            @endif
-        </div>
+
+    <div class="mt-6 flex items-center justify-between border-t border-white/5 pt-4 text-xs text-slate-400">
+        <span>{{ $status === 'completed' ? 'Certified' : 'Keep going' }}</span>
+        <x-public.button href="{{ $ctaHref }}" class="px-5 py-2 text-[0.75rem]">
+            {{ $ctaLabel }}
+        </x-public.button>
     </div>
-</div>
+</article>
