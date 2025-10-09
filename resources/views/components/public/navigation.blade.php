@@ -21,9 +21,8 @@
                         <path d="M4.5 8.25V15a4.5 4.5 0 004.5 4.5h6a4.5 4.5 0 004.5-4.5V8.25a4.5 4.5 0 00-3.197-4.3l-4.5-1.35a1.5 1.5 0 00-.806 0l-4.5 1.35A4.5 4.5 0 004.5 8.25z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </span>
-                <div class="flex flex-col leading-tight">
-                    <span class="text-xs uppercase tracking-[0.22em] text-sky-300/80 group-hover:text-sky-200">{{ $brandSecondary }}</span>
-                    <span class="text-lg font-semibold">{{ $brandPrimary }}</span>
+                <div class="leading-tight">
+                    <span class="text-lg uppercase tracking-[0.22em] text-sky-300/80 group-hover:text-sky-200">{{ $brandSecondary }}</span>
                 </div>
             </a>
 
