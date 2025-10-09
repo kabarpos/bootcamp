@@ -35,16 +35,15 @@ class MidtransService
     public function getSnapToken($transactionDetails)
     {
         try {
-            // Log the request for debugging
-            Log::info('Midtrans Snap Token Request', [
-                'url' => "{$this->snapBaseUrl}/snap/v1/transactions",
-                'transaction_details' => $transactionDetails,
-                'server_key_prefix' => substr($this->serverKey, 0, 10) . '...',
+            Log::debug('Midtrans Snap Token Request', [
+                'order_id' => $transactionDetails['order_id'] ?? null,
+                'gross_amount' => $transactionDetails['gross_amount'] ?? null,
                 'is_production' => $this->isProduction,
-                'notification_url' => route('payment.notification'),
             ]);
 
             $response = Http::withBasicAuth($this->serverKey, '')
+                ->timeout(10)
+                ->retry(3, 200)
                 ->withHeaders([
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
@@ -59,30 +58,24 @@ class MidtransService
                     ],
                 ]);
 
-            Log::info('Midtrans Snap Token Response', [
-                'status' => $response->status(),
-                'headers' => $response->headers(),
-                'body' => $response->body(),
-            ]);
-
             if ($response->successful()) {
                 $result = $response->json();
-                Log::info('Midtrans Snap Token Success', [
-                    'token' => isset($result['token']) ? substr($result['token'], 0, 10) . '...' : 'NOT_FOUND',
-                    'redirect_url' => $result['redirect_url'] ?? 'NOT_FOUND',
+                Log::info('Midtrans Snap Token issued', [
+                    'order_id' => $transactionDetails['order_id'] ?? null,
+                    'redirect_url_present' => isset($result['redirect_url']),
                 ]);
                 return $result['token'] ?? null;
             } else {
                 Log::error('Midtrans Snap Token Error', [
                     'status' => $response->status(),
-                    'response' => $response->body(),
+                    'order_id' => $transactionDetails['order_id'] ?? null,
                 ]);
                 return null;
             }
         } catch (\Exception $e) {
             Log::error('Midtrans Snap Token Exception', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'order_id' => $transactionDetails['order_id'] ?? null,
             ]);
             return null;
         }
@@ -140,18 +133,15 @@ class MidtransService
         $url = "{$this->apiBaseUrl}/v2/{$orderId}/status";
 
         try {
-            Log::info('Midtrans Status Request', ['url' => $url, 'order_id' => $orderId]);
+            Log::debug('Midtrans Status Request', ['order_id' => $orderId]);
 
             $response = Http::withBasicAuth($this->serverKey, '')
+                ->timeout(10)
+                ->retry(3, 200)
                 ->withHeaders([
                     'Accept' => 'application/json',
                 ])
                 ->get($url);
-
-            Log::info('Midtrans Status Response', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
 
             if ($response->successful()) {
                 return $response->json();
@@ -159,12 +149,12 @@ class MidtransService
 
             Log::error('Midtrans Status Error', [
                 'status' => $response->status(),
-                'response' => $response->body(),
+                'order_id' => $orderId,
             ]);
         } catch (\Exception $e) {
             Log::error('Midtrans Status Exception', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'order_id' => $orderId,
             ]);
         }
 

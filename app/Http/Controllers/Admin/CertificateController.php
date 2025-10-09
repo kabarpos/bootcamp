@@ -387,6 +387,39 @@ class CertificateController extends Controller
     /**
      * Generate certificate for completed enrollments
      */
+    public function generate(Enrollment $enrollment)
+    {
+        try {
+            if ($enrollment->status !== 'completed') {
+                return back()->withErrors(['error' => 'Enrollment belum selesai.']);
+            }
+
+            if ($enrollment->certificate) {
+                return back()->withErrors(['error' => 'Enrollment sudah memiliki sertifikat.']);
+            }
+
+            $certificate = Certificate::create([
+                'enrollment_id' => $enrollment->id,
+                'certificate_no' => Certificate::generateCertificateNumber(),
+                'file_url' => '',
+            ]);
+
+            Log::info('Certificate generated for enrollment', [
+                'certificate_id' => $certificate->id,
+                'enrollment_id' => $certificate->enrollment_id,
+                'admin_id' => auth()->id(),
+            ]);
+
+            return back()->with('success', 'Sertifikat berhasil dibuat.');
+        } catch (\Exception $e) {
+            Log::error('Error generating certificate: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat membuat sertifikat.']);
+        }
+    }
+
+    /**
+     * Generate certificate for completed enrollments
+     */
     public function generateForCompletedEnrollments(Request $request)
     {
         try {
@@ -533,7 +566,7 @@ class CertificateController extends Controller
         $options->set('dpi', 150);
         $options->set('defaultFont', 'sans-serif');
         $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true);
+        $options->set('isRemoteEnabled', false);
 
         $pdf = new Dompdf($options);
         $pdf->setPaper('a4', 'landscape');

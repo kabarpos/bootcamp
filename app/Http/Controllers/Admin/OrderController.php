@@ -9,7 +9,7 @@ use App\Models\Voucher;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -92,9 +92,9 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'enrollment_id' => 'required|exists:enrollments,id|unique:orders,enrollment_id',
+            'enrollment_id' => 'required|exists:enrollment,id|unique:orders,enrollment_id',
             'amount' => 'required|numeric|min:0',
-            'voucher_id' => 'nullable|exists:vouchers,id',
+            'voucher_id' => 'nullable|exists:voucher,id',
             'status' => 'required|in:pending,paid,cancelled,expired',
             'expired_at' => 'nullable|date|after:now',
         ]);
@@ -118,7 +118,9 @@ class OrderController extends Controller
         $total = $amount - $discountAmount;
 
         // Generate invoice number
-        $invoiceNo = 'INV-' . date('Ymd') . '-' . str_pad(Order::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+        do {
+            $invoiceNo = 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(8));
+        } while (Order::where('invoice_no', $invoiceNo)->exists());
 
         $order = Order::create([
             'enrollment_id' => $validated['enrollment_id'],
@@ -165,11 +167,11 @@ class OrderController extends Controller
         $validated = $request->validate([
             'enrollment_id' => [
                 'required',
-                'exists:enrollments,id',
+                'exists:enrollment,id',
                 Rule::unique('orders', 'enrollment_id')->ignore($order->id)
             ],
             'amount' => 'required|numeric|min:0',
-            'voucher_id' => 'nullable|exists:vouchers,id',
+            'voucher_id' => 'nullable|exists:voucher,id',
             'status' => 'required|in:pending,paid,cancelled,expired',
             'expired_at' => 'nullable|date',
         ]);

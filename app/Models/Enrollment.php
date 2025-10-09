@@ -67,6 +67,14 @@ class Enrollment extends Model
     }
 
     /**
+     * Scope for active enrollments (counts pending seats as well).
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', ['pending', 'confirmed', 'completed']);
+    }
+
+    /**
      * Scope for completed enrollments.
      */
     public function scopeCompleted($query)

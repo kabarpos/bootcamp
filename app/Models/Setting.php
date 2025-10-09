@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
@@ -23,8 +24,19 @@ class Setting extends Model
      */
     public static function get($key, $default = null)
     {
-        $setting = self::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        $cached = Cache::get(self::cacheKey($key));
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $setting = self::where('key', $key)->value('value');
+        if ($setting === null) {
+            return $default;
+        }
+
+        Cache::put(self::cacheKey($key), $setting, now()->addMinutes(10));
+
+        return $setting;
     }
     
     /**
@@ -37,5 +49,11 @@ class Setting extends Model
     public static function set($key, $value)
     {
         self::updateOrCreate(['key' => $key], ['value' => $value]);
+        Cache::forget(self::cacheKey($key));
+    }
+
+    protected static function cacheKey(string $key): string
+    {
+        return "settings:{$key}";
     }
 }

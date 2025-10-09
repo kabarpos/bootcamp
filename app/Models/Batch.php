@@ -87,7 +87,7 @@ class Batch extends Model
      */
     public function getEnrolledCountAttribute()
     {
-        return $this->enrollments()->confirmed()->count();
+        return $this->enrollments()->active()->count();
     }
 
     /**

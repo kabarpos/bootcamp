@@ -12,6 +12,7 @@ use App\Services\MidtransService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -49,45 +50,68 @@ class PaymentController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
-        $batch = Batch::findOrFail($validated['batch_id']);
+        $order = DB::transaction(function () use ($validated, $bootcamp) {
+            $batch = Batch::whereKey($validated['batch_id'])
+                ->where('bootcamp_id', $bootcamp->id)
+                ->lockForUpdate()
+                ->first();
 
-        if ($batch->bootcamp_id !== $bootcamp->id) {
+            if (! $batch) {
+                return null;
+            }
+
+            $userId = Auth::id();
+
+            $existingEnrollment = Enrollment::where('user_id', $userId)
+                ->where('batch_id', $batch->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingEnrollment) {
+                return 'existing';
+            }
+
+            $activeEnrollments = $batch->enrollments()
+                ->active()
+                ->lockForUpdate()
+                ->count();
+
+            if ($batch->capacity !== null && $batch->capacity > 0 && $activeEnrollments >= $batch->capacity) {
+                return 'full';
+            }
+
+            $enrollment = Enrollment::create([
+                'user_id' => $userId,
+                'batch_id' => $batch->id,
+                'status' => 'pending',
+            ]);
+
+            do {
+                $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+            } while (Order::where('invoice_no', $invoiceNo)->exists());
+
+            return Order::create([
+                'enrollment_id' => $enrollment->id,
+                'invoice_no' => $invoiceNo,
+                'amount' => $bootcamp->base_price,
+                'discount_amount' => 0,
+                'total' => $bootcamp->base_price,
+                'status' => 'pending',
+                'expired_at' => now()->addDays(7),
+            ]);
+        });
+
+        if ($order === null) {
             return redirect()->back()->with('error', 'Invalid batch selection.');
         }
 
-        if ($batch->available_slots <= 0) {
-            return redirect()->back()->with('error', 'This batch is full.');
-        }
-
-        $existingEnrollment = Enrollment::where('user_id', Auth::id())
-            ->where('batch_id', $batch->id)
-            ->first();
-
-        if ($existingEnrollment) {
+        if ($order === 'existing') {
             return redirect()->back()->with('error', 'You are already enrolled in this batch.');
         }
 
-        $enrollment = Enrollment::create([
-            'user_id' => Auth::id(),
-            'batch_id' => $batch->id,
-            'status' => 'pending',
-        ]);
-
-        $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-
-        while (Order::where('invoice_no', $invoiceNo)->exists()) {
-            $invoiceNo = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        if ($order === 'full') {
+            return redirect()->back()->with('error', 'This batch is full.');
         }
-
-        $order = Order::create([
-            'enrollment_id' => $enrollment->id,
-            'invoice_no' => $invoiceNo,
-            'amount' => $bootcamp->base_price,
-            'discount_amount' => 0,
-            'total' => $bootcamp->base_price,
-            'status' => 'pending',
-            'expired_at' => now()->addDays(7),
-        ]);
 
         return redirect()->route('payment.checkout', $order->id);
     }
@@ -143,7 +167,10 @@ class PaymentController extends Controller
     {
         $notification = $request->all();
 
-        Log::info('Midtrans Notification Received', $notification);
+        Log::info('Midtrans notification received', [
+            'order_id' => $notification['order_id'] ?? null,
+            'transaction_status' => $notification['transaction_status'] ?? null,
+        ]);
 
         if (! $this->midtransService->validateSignature($notification)) {
             Log::warning('Midtrans notification signature mismatch', [
@@ -155,7 +182,10 @@ class PaymentController extends Controller
 
         $result = $this->midtransService->handleNotification($notification);
 
-        Log::info('Midtrans Notification Processed', $result);
+        Log::debug('Midtrans notification processed', [
+            'order_id' => $result['order_id'] ?? null,
+            'status' => $result['status'] ?? null,
+        ]);
 
         $order = Order::where('invoice_no', $result['order_id'])->first();
 
@@ -183,7 +213,6 @@ class PaymentController extends Controller
     public function success(Request $request)
     {
         Log::info('Payment success redirect called', [
-            'all_params' => $request->all(),
             'order_id' => $request->get('order_id'),
             'status_code' => $request->get('status_code'),
             'transaction_status' => $request->get('transaction_status'),
@@ -195,6 +224,14 @@ class PaymentController extends Controller
             $order = Order::where('invoice_no', $orderId)->first();
 
             if ($order) {
+                if ($order->enrollment->user_id !== Auth::id()) {
+                    Log::warning('Unauthorized payment redirect access attempt', [
+                        'order_id' => $orderId,
+                        'actor_id' => Auth::id(),
+                    ]);
+                    abort(403);
+                }
+
                 if ($order->status === 'paid') {
                     Log::info('Redirecting to payment success page', ['order_id' => $order->id]);
                     return redirect()->route('payment.success', $order->id);

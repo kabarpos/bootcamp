@@ -14,12 +14,30 @@ class EloquentSettingRepository implements SettingRepositoryInterface
 
     public function getValues(array $keys): array
     {
-        $cacheKey = 'settings:' . md5(json_encode($keys));
+        $values = [];
+        $missingKeys = [];
 
-        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($keys) {
-            return $this->model->whereIn('key', $keys)
-                ->pluck('value', 'key')
-                ->toArray();
-        });
+        foreach ($keys as $key) {
+            $cacheKey = "settings:{$key}";
+            if (Cache::has($cacheKey)) {
+                $values[$key] = Cache::get($cacheKey);
+                continue;
+            }
+
+            $missingKeys[] = $key;
+        }
+
+        if ($missingKeys) {
+            $fetched = $this->model->whereIn('key', $missingKeys)
+                ->pluck('value', 'key');
+
+            foreach ($missingKeys as $key) {
+                $value = $fetched[$key] ?? null;
+                Cache::put("settings:{$key}", $value, now()->addMinutes(10));
+                $values[$key] = $value;
+            }
+        }
+
+        return $values;
     }
 }
