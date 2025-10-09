@@ -12,7 +12,7 @@
 @endphp
 
 <nav x-data="{ mobileMenuOpen: false }" class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-2xl">
-    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-8">
             <a href="{{ route('public.homepage') }}" class="group flex items-center gap-3 text-slate-200 transition-colors hover:text-white">
                 <span class="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 via-indigo-500 to-blue-700 text-lg font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.6)]">
