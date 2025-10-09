@@ -1,20 +1,19 @@
-<!-- Stats Section -->
-<div class="py-12 bg-background">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl font-extrabold text-foreground sm:text-4xl">
-                {{ $title ?? 'By the numbers' }}
-            </h2>
-            <p class="mt-3 text-xl text-muted-foreground sm:mt-4">
-                {{ $description ?? 'Our impact in numbers that matter.' }}
-            </p>
+@php
+    $title = $title ?? 'The NovaTech impact';
+    $description = $description ?? 'Learners around the region trust NovaTech to build career-defining skills and unlock roles with top engineering teams.';
+@endphp
+
+<section class="relative py-24">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_65%)]"></div>
+
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl text-center">
+            <h2 class="text-3xl font-bold text-white sm:text-4xl">{{ $title }}</h2>
+            <p class="mt-4 text-sm text-slate-300 sm:text-base">{{ $description }}</p>
+        </div>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-2">
+            {{ $slot }}
         </div>
     </div>
-    <div class="mt-10 bg-gradient-to-r from-primary/80 to-blue-600/80 backdrop-blur-sm rounded-lg mx-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
-                {{ $slot }}
-            </div>
-        </div>
-    </div>
-</div>
+</section>

@@ -1,12 +1,13 @@
-<div class="mt-6 bg-card/50 backdrop-blur-sm p-6 rounded-lg border border-border shadow-lg">
-    <div class="flex items-start">
-        <div class="flex-shrink-0">
+<div class="glass-card relative overflow-hidden rounded-[24px] p-6">
+    <span class="spotlight-ring"></span>
+    <div class="relative flex items-start gap-4">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-slate-900/70 text-sky-300">
             {{ $icon }}
         </div>
-        <div class="ml-3 text-base text-muted-foreground">
+        <div class="text-sm text-slate-200">
             <p>{{ $line1 }}</p>
             @if(isset($line2))
-            <p class="mt-1">{{ $line2 }}</p>
+                <p class="mt-1 text-xs text-slate-400">{{ $line2 }}</p>
             @endif
         </div>
     </div>

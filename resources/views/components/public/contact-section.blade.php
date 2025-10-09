@@ -1,95 +1,148 @@
-<!-- Contact Section -->
-<div id="contact" class="py-12 bg-background">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <x-public.section-title 
-            subtitle="{{ $subtitle ?? 'Contact' }}"
-            title="{{ $title ?? 'Get in Touch' }}"
-            description="{{ $description ?? 'Have questions? We\'re here to help you begin your journey.' }}"
+@php
+    $subtitle = $subtitle ?? 'Talk to our team';
+    $title = $title ?? 'Let’s map out your path into tech';
+    $description = $description ?? 'Whether you are building your first skillset or levelling up an existing career, our advisors are here to help you choose the right program.';
+@endphp
+
+<section id="contact" class="relative py-24">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.12),_transparent_60%)]"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <x-public.section-title
+            :subtitle="$subtitle"
+            :title="$title"
+            :description="$description"
         />
-        
-        <div class="mt-10">
-            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                <div>
-                    <form action="{{ $formAction ?? '#' }}" method="POST" class="grid grid-cols-1 gap-y-6 bg-card/80 backdrop-blur-sm p-6 rounded-lg border border-border shadow-lg">
-                        @csrf
-                        <div>
-                            <label for="name" class="sr-only">Full name</label>
-                            <input type="text" name="name" id="name" autocomplete="name" placeholder="{{ $namePlaceholder ?? 'Full name' }}" class="block w-full shadow-sm py-3 px-4 placeholder-muted-foreground focus:ring-primary focus:border-primary border border-border rounded-md bg-card/50 text-foreground backdrop-blur-sm" required>
-                        </div>
 
-                        <div>
-                            <label for="email" class="sr-only">Email</label>
-                            <input id="email" name="email" type="email" autocomplete="email" placeholder="{{ $emailPlaceholder ?? 'Email' }}" class="block w-full shadow-sm py-3 px-4 placeholder-muted-foreground focus:ring-primary focus:border-primary border border-border rounded-md bg-card/50 text-foreground backdrop-blur-sm" required>
-                        </div>
+        <div class="mt-14 grid gap-10 lg:grid-cols-[0.65fr_0.35fr]">
+            <form
+                action="{{ $formAction ?? '#' }}"
+                method="POST"
+                class="glass-card relative overflow-hidden rounded-[32px] border border-white/10 p-8">
+                @csrf
+                <span class="spotlight-ring"></span>
 
-                        <div>
-                            <label for="phone" class="sr-only">Phone</label>
-                            <input type="text" name="phone" id="phone" autocomplete="tel" placeholder="{{ $phonePlaceholder ?? 'Phone' }}" class="block w-full shadow-sm py-3 px-4 placeholder-muted-foreground focus:ring-primary focus:border-primary border border-border rounded-md bg-card/50 text-foreground backdrop-blur-sm">
-                        </div>
-
-                        <div>
-                            <label for="message" class="sr-only">Message</label>
-                            <textarea id="message" name="message" rows="4" placeholder="{{ $messagePlaceholder ?? 'Message' }}" class="block w-full shadow-sm py-3 px-4 placeholder-muted-foreground focus:ring-primary focus:border-primary border border-border rounded-md bg-card/50 text-foreground backdrop-blur-sm" required></textarea>
-                        </div>
-
-                        <div>
-                            <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer btn-primary backdrop-blur-sm">
-                                {{ $submitText ?? 'Submit' }}
-                            </button>
-                        </div>
-                    </form>
+                <div class="grid gap-6 md:grid-cols-2">
+                    <div class="md:col-span-1">
+                        <label for="name" class="mb-2 block text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Full name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            autocomplete="name"
+                            placeholder="{{ $namePlaceholder ?? 'Your full name' }}"
+                            class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/30"
+                            required>
+                    </div>
+                    <div class="md:col-span-1">
+                        <label for="email" class="mb-2 block text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            autocomplete="email"
+                            placeholder="{{ $emailPlaceholder ?? 'you@email.com' }}"
+                            class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/30"
+                            required>
+                    </div>
+                    <div class="md:col-span-1">
+                        <label for="phone" class="mb-2 block text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Whatsapp / phone</label>
+                        <input
+                            type="text"
+                            name="phone"
+                            id="phone"
+                            autocomplete="tel"
+                            placeholder="{{ $phonePlaceholder ?? '+62 81 1234 5678' }}"
+                            class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/30">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label for="goal" class="mb-2 block text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Learning goal</label>
+                        <select
+                            id="goal"
+                            name="goal"
+                            class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/30">
+                            <option value="">Select your focus</option>
+                            <option>Career switch</option>
+                            <option>Skill upgrade</option>
+                            <option>Startup builder</option>
+                            <option>Corporate training</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="message" class="mb-2 block text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">How can we help?</label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="4"
+                            placeholder="{{ $messagePlaceholder ?? 'Tell us about your journey so far and what success looks like.' }}"
+                            class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/30"
+                            required></textarea>
+                    </div>
                 </div>
-                <div class="mt-12 sm:mt-0">
-                    <div class="h-full bg-card/80 rounded-lg shadow-lg p-6 border border-border backdrop-blur-sm">
-                        <div class="h-full flex flex-col justify-between">
+
+                <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-xs text-slate-400">
+                        We reply within 24 hours Monday–Friday. Prefer instant support? Chat with us on
+                        <a href="https://wa.me/62811888000" target="_blank" rel="noopener" class="text-sky-300 hover:text-sky-200">WhatsApp</a>.
+                    </p>
+                    <x-public.button type="submit" class="justify-center px-6 py-3 text-sm">
+                        {{ $submitText ?? 'Send message' }}
+                    </x-public.button>
+                </div>
+            </form>
+
+            <aside class="glass-card relative overflow-hidden rounded-[32px] border border-white/10 p-8">
+                <span class="spotlight-ring"></span>
+                <div class="relative flex h-full flex-col gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">{{ $infoTitle ?? 'Admissions desk' }}</h3>
+                        <p class="mt-3 text-sm text-slate-300">
+                            {{ $infoDescription ?? 'Our team of program advisors is ready to guide you on financing, curriculum fit, and cohort timelines.' }}
+                        </p>
+                    </div>
+                    <div class="space-y-5 text-sm text-slate-200">
+                        <div class="flex gap-3">
+                            <span class="mt-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-300">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                    <path d="M3 5.5A2.5 2.5 0 015.5 3h1.172a1.5 1.5 0 011.414 1.057l1.26 4.201a1.5 1.5 0 01-.863 1.807l-1.08.405a11.04 11.04 0 005.675 5.675l.405-1.08a1.5 1.5 0 011.807-.863l4.201 1.26A1.5 1.5 0 0121 17.328V18.5A2.5 2.5 0 0118.5 21H17C9.82 21 4 15.18 4 8V6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
                             <div>
-                                <h3 class="text-lg font-medium text-foreground">{{ $infoTitle ?? 'Contact Information' }}</h3>
-                                <p class="mt-2 text-muted-foreground">
-                                    {{ $infoDescription ?? 'Fill out the form and we\'ll get back to you as soon as possible.' }}
-                                </p>
+                                <p class="font-semibold text-white">{{ $phone ?? '+62 811-888-000' }}</p>
+                                <p class="text-xs uppercase tracking-[0.26em] text-slate-400">{{ $phoneHours ?? 'Mon–Fri · 09.00 – 18.00 WIB' }}</p>
                             </div>
-                            <div class="mt-8">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <!-- Heroicon name: outline/phone -->
-                                        <svg class="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3 text-base text-muted-foreground">
-                                        <p>{{ $phone ?? '+1 (555) 123-4567' }}</p>
-                                        <p class="mt-1">{{ $phoneHours ?? 'Mon-Fri 9am to 5pm (EST)' }}</p>
-                                    </div>
-                                </div>
-                                <div class="mt-6 flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <!-- Heroicon name: outline/mail -->
-                                        <svg class="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3 text-base text-muted-foreground">
-                                        <p>{{ $email ?? 'info@bootcamp.com' }}</p>
-                                    </div>
-                                </div>
-                                <div class="mt-6 flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <!-- Heroicon name: outline/location-marker -->
-                                        <svg class="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3 text-base text-muted-foreground">
-                                        <p>{{ $addressLine1 ?? '123 Tech Street' }}</p>
-                                        <p>{{ $addressLine2 ?? 'San Francisco, CA 94103' }}</p>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="mt-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-300">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                    <path d="M4 6.75A2.75 2.75 0 016.75 4h10.5A2.75 2.75 0 0120 6.75V17.25A2.75 2.75 0 0117.25 20H6.75A2.75 2.75 0 014 17.25V6.75z" stroke="currentColor" stroke-width="1.6" />
+                                    <path d="M4 7l8 5 8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="font-semibold text-white">{{ $email ?? 'admissions@novatechcamp.com' }}</p>
+                                <p class="text-xs uppercase tracking-[0.26em] text-slate-400">We reply within 24 hours</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="mt-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 21s6.75-5.097 6.75-9.75a6.75 6.75 0 10-13.5 0C5.25 15.903 12 21 12 21z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                    <circle cx="12" cy="11.25" r="2.25" stroke="currentColor" stroke-width="1.6" />
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="font-semibold text-white">{{ $addressLine1 ?? 'Menara Astra 25F' }}</p>
+                                <p class="text-xs uppercase tracking-[0.26em] text-slate-400">{{ $addressLine2 ?? 'Central Jakarta, Indonesia' }}</p>
                             </div>
                         </div>
                     </div>
+
+                    <div class="mt-auto rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-xs text-slate-400">
+                        Looking for team-wide adoption? Ask us about custom corporate cohorts and on-site training packages.
+                    </div>
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
-</div>
+</section>

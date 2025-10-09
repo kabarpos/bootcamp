@@ -1,46 +1,46 @@
-<div class="flex flex-col rounded-lg shadow-lg overflow-hidden bg-card/80 backdrop-blur-sm border border-border bootcamp-card transition-all duration-300 hover:shadow-xl">
-    <div class="flex-shrink-0">
-        <img class="h-48 w-full object-cover" src="{{ $image }}" alt="{{ $alt }}">
+<article class="glass-card group relative flex h-full flex-col overflow-hidden rounded-[28px]">
+    <span class="spotlight-ring"></span>
+
+    <figure class="relative h-40 w-full overflow-hidden">
+        <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ $image }}" alt="{{ $alt }}">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent"></div>
+        <div class="absolute inset-x-6 bottom-4 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.22em] text-slate-200">
+            <span class="rounded-full border border-white/20 bg-slate-900/60 px-3 py-1 text-[0.7rem]">{{ $category }}</span>
+            @if (isset($level))
+                <span class="rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1 text-[0.7rem] text-sky-200">{{ $level }}</span>
+            @endif
+        </div>
+    </figure>
+
+    <div class="flex flex-1 flex-col gap-6 p-6">
+        <a href="{{ $titleLink }}" class="space-y-3">
+            <h3 class="text-xl font-semibold text-white transition group-hover:text-sky-200">{{ $title }}</h3>
+            <p class="text-sm text-slate-300">
+                {{ $description }}
+            </p>
+        </a>
+
+        <div class="grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-xs">
+            <div class="flex flex-col gap-1 text-slate-300">
+                <span class="text-[0.65rem] uppercase tracking-[0.32em] text-slate-500">Duration</span>
+                <span class="text-sm font-semibold text-slate-100">{{ $duration }}</span>
+            </div>
+            <div class="flex flex-col gap-1 text-slate-300">
+                <span class="text-[0.65rem] uppercase tracking-[0.32em] text-slate-500">Investment</span>
+                <span class="text-sm font-semibold text-slate-100">{{ $price }}</span>
+            </div>
+        </div>
+
+        <div class="mt-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[0.75rem] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                Cohort seats
+                <span class="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[0.65rem] text-emerald-200">
+                    Limited
+                </span>
+            </div>
+            <x-public.button href="{{ $titleLink }}" class="px-5 py-2 text-[0.75rem]">
+                Program details
+            </x-public.button>
+        </div>
     </div>
-    <div class="flex-1 p-6 flex flex-col justify-between">
-        <div class="flex-1">
-            <div class="flex items-center justify-between">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary backdrop-blur-sm">
-                    {{ $category }}
-                </span>
-                @if(isset($level))
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                    @if($level === 'Beginner') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
-                    @elseif($level === 'Intermediate') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
-                    @else bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300
-                    @endif backdrop-blur-sm">
-                    {{ $level }}
-                </span>
-                @endif
-            </div>
-            <a href="{{ $titleLink }}" class="block mt-4">
-                <p class="text-xl font-semibold text-foreground hover:text-primary transition-colors duration-300">{{ $title }}</p>
-                <p class="mt-3 text-base text-muted-foreground">
-                    {{ $description }}
-                </p>
-            </a>
-        </div>
-        <div class="mt-6 flex items-center">
-            <div class="flex-shrink-0">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary backdrop-blur-sm">
-                    {{ $duration }}
-                </span>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm font-medium text-foreground">
-                    {{ $price }}
-                </p>
-            </div>
-        </div>
-        <div class="mt-6">
-            <a href="{{ $titleLink }}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer btn-primary backdrop-blur-sm transition-colors duration-300">
-                View Details
-            </a>
-        </div>
-    </div>
-</div>
+</article>
