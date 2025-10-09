@@ -90,11 +90,6 @@ class PublicController extends Controller
         return view('public.dashboard', $this->dashboardData());
     }
 
-    public function userDashboard()
-    {
-        return view('dashboard', $this->dashboardData());
-    }
-
     private function dashboardData(): array
     {
         $userId = Auth::id();

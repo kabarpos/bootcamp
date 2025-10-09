@@ -17,6 +17,15 @@ class EnrollmentFlowTest extends TestCase
 {
     use RefreshDatabase;
 
+    private string $midtransServerKey = 'test-server-key';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['midtrans.server_key' => $this->midtransServerKey]);
+    }
+
     public function test_guest_is_redirected_from_enroll_page(): void
     {
         $bootcamp = Bootcamp::factory()->create(['is_active' => true]);
@@ -145,7 +154,7 @@ class EnrollmentFlowTest extends TestCase
             'expired_at' => Carbon::now()->addDays(7),
         ]);
 
-        $payload = [
+        $payload = $this->signNotificationPayload([
             'order_id' => $order->invoice_no,
             'transaction_status' => 'settlement',
             'fraud_status' => 'accept',
@@ -155,7 +164,7 @@ class EnrollmentFlowTest extends TestCase
                 ['va_number' => '1234567890'],
             ],
             'pdf_url' => 'https://snap.test/receipt.pdf',
-        ];
+        ], $order->total);
 
         $response = $this->postJson(route('payment.notification'), $payload);
 
@@ -195,12 +204,12 @@ class EnrollmentFlowTest extends TestCase
             'expired_at' => Carbon::now()->addDays(7),
         ]);
 
-        $payload = [
+        $payload = $this->signNotificationPayload([
             'order_id' => $order->invoice_no,
             'transaction_status' => 'expire',
             'fraud_status' => 'accept',
             'transaction_id' => 'test-expired',
-        ];
+        ], $order->total, '202');
 
         $response = $this->postJson(route('payment.notification'), $payload);
 
@@ -217,5 +226,14 @@ class EnrollmentFlowTest extends TestCase
     {
         Mockery::close();
         parent::tearDown();
+    }
+
+    private function signNotificationPayload(array $payload, float $grossAmount, string $statusCode = '200'): array
+    {
+        $payload['status_code'] = $statusCode;
+        $payload['gross_amount'] = number_format($grossAmount, 2, '.', '');
+        $payload['signature_key'] = hash('sha512', $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . $this->midtransServerKey);
+
+        return $payload;
     }
 }

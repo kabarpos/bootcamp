@@ -42,11 +42,6 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 // Midtrans webhook (CSRF exemption configured in bootstrap/app.php)
 Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
 
-// Default Jetstream dashboard
-Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::get('/dashboard', [PublicController::class, 'userDashboard'])->name('dashboard');
-});
-
 // Administration area
 Route::middleware(['auth', 'verified', 'role:admin'])
     ->prefix('admin')

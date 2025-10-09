@@ -16,7 +16,7 @@ class LoginResponse implements LoginResponseContract
 
         $redirectTo = match (true) {
             $user && method_exists($user, 'isAdmin') && $user->isAdmin() => route('admin.dashboard'),
-            default => route('dashboard'),
+            default => route('public.dashboard'),
         };
 
         return redirect()->intended($redirectTo);
