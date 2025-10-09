@@ -60,12 +60,12 @@
                     @endforeach
                 </dl>
 
-                <div class="mt-4 flex flex-wrap items-center gap-6 text-xs uppercase tracking-[0.4em] text-slate-500">
+                {{-- <div class="mt-4 flex flex-wrap items-center gap-6 text-xs uppercase tracking-[0.4em] text-slate-500">
                     <span class="text-slate-400/80">Trusted by alumni working at</span>
                     @foreach ($brands as $brand)
                         <span class="rounded-full border border-white/10 bg-slate-900/50 px-4 py-2 text-[0.75rem] text-slate-300">{{ $brand }}</span>
                     @endforeach
-                </div>
+                </div> --}}
             </div>
 
             <div class="relative h-full">
