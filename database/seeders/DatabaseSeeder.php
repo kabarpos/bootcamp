@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         $this->call(WhatsappTemplateSeeder::class);
         $this->call(EmailTemplateSeeder::class);
 
-        // Run the TestDataSeeder to create sample data
-        $this->call(TestDataSeeder::class);
+        // Seed bootcamp dan batch nyata
+        $this->call(BootcampSeeder::class);
         
         // Note: Test users should be created manually or through registration, not automatically
         // The following line has been removed for security reasons:

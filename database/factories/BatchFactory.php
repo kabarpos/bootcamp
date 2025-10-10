@@ -16,25 +16,79 @@ class BatchFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    protected static array $templates = [
+        [
+            'code' => 'BATCH-JKT-ONLINE',
+            'start_date' => '2025-07-15',
+            'end_date' => '2025-11-28',
+            'start_time' => '19:00:00',
+            'end_time' => '22:00:00',
+            'meeting_platform' => 'Zoom',
+            'meeting_link' => 'https://zoom.us/j/1234567890',
+            'status' => 'upcoming',
+            'capacity' => 35,
+        ],
+        [
+            'code' => 'BATCH-BDG-OFFLINE',
+            'start_date' => '2025-08-05',
+            'end_date' => '2025-12-19',
+            'start_time' => '09:00:00',
+            'end_time' => '16:00:00',
+            'city' => 'Bandung',
+            'venue_name' => 'Coworking Space Bandung Digital Valley',
+            'venue_address' => 'Jl. Gegerkalong Hilir No.47, Bandung',
+            'status' => 'upcoming',
+            'capacity' => 28,
+        ],
+        [
+            'code' => 'BATCH-SBY-WEEKEND',
+            'start_date' => '2025-09-07',
+            'end_date' => '2025-12-14',
+            'start_time' => '10:00:00',
+            'end_time' => '15:00:00',
+            'city' => 'Surabaya',
+            'venue_name' => 'Alterra Academy HQ',
+            'venue_address' => 'Jl. Raya Darmo Permai III No.25, Surabaya',
+            'status' => 'upcoming',
+            'capacity' => 24,
+        ],
+    ];
+
+    protected static int $sequence = 0;
+
     public function definition(): array
     {
-        $startDate = fake()->dateTimeBetween('now', '+6 months');
-        $endDate = fake()->dateTimeBetween($startDate->format('Y-m-d'), '+1 year');
+        $template = static::$templates[static::$sequence % count(static::$templates)];
+        static::$sequence++;
 
-        return [
+        $batch = array_merge($template, [
             'bootcamp_id' => Bootcamp::factory(),
-            'code' => 'BATCH-' . fake()->unique()->regexify('[A-Z0-9]{6}'),
-            'start_date' => $startDate->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'),
-            'start_time' => fake()->time('H:i', '09:00'),
-            'end_time' => fake()->time('H:i', '17:00'),
-            'city_id' => City::factory(),
-            'venue_name' => fake()->company(),
-            'venue_address' => fake()->address(),
-            'meeting_link' => fake()->optional(0.5)->url(),
-            'meeting_platform' => fake()->optional(0.5)->randomElement(['Zoom', 'Google Meet', 'Microsoft Teams']),
-            'status' => fake()->randomElement(['upcoming', 'ongoing', 'completed', 'cancelled']),
-            'capacity' => fake()->numberBetween(10, 50),
-        ];
+            'start_time' => $template['start_time'] ?? null,
+            'end_time' => $template['end_time'] ?? null,
+            'meeting_platform' => $template['meeting_platform'] ?? null,
+            'meeting_link' => $template['meeting_link'] ?? null,
+            'venue_name' => $template['venue_name'] ?? null,
+            'venue_address' => $template['venue_address'] ?? null,
+            'status' => $template['status'] ?? 'upcoming',
+            'capacity' => $template['capacity'] ?? 30,
+        ]);
+
+        $cityName = $template['city'] ?? null;
+        unset($batch['city']);
+
+        if ($cityName) {
+            $city = City::firstOrCreate([
+                'name' => $cityName,
+            ], [
+                'country_code' => 'ID',
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+            $batch['city_id'] = $city->id;
+        } else {
+            $batch['city_id'] = null;
+        }
+
+        return $batch;
     }
 }

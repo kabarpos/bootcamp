@@ -20,7 +20,8 @@ class AdminSeeder extends Seeder
         $adminName = env('ADMIN_NAME', 'Administrator');
 
         if (empty($adminPassword)) {
-            throw new \RuntimeException('ADMIN_PASSWORD environment variable must be defined before running the AdminSeeder.');
+            $adminPassword = 'password';
+            $this->command?->warn('ADMIN_PASSWORD belum diatur, menggunakan password default "password" untuk akun admin.');
         }
 
         // Create admin role if it doesn't exist
