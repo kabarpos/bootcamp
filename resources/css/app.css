@@ -17,11 +17,15 @@ html.dark {
 
 @plugin "@tailwindcss/forms";
 
-/* Base styles using custom colors */
+/* Base styles */
 body {
-    @apply bg-background text-foreground;
+    @apply bg-gray-50 text-gray-900;
     font-family: 'Manrope', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.public-layout {
+    @apply bg-background text-foreground;
 }
 
 /* Font family utilities */

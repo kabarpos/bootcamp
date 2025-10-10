@@ -58,7 +58,7 @@
                             <option value="">Pilih Voucher</option>
                             @foreach($vouchers as $voucher)
                                 <option value="{{ $voucher->id }}" {{ old('voucher_id', $order->voucher_id) == $voucher->id ? 'selected' : '' }}>
-                                    {{ $voucher->code }} ({{ $voucher->type == 'percentage' ? $voucher->value.'%' : 'Rp '.$voucher->value }})
+                                    {{ $voucher->code }} ({{ $voucher->type === 'percent' ? $voucher->value.'%' : 'Rp '.number_format($voucher->value, 0, ',', '.') }})
                                 </option>
                             @endforeach
                         </select>

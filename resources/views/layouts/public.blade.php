@@ -17,7 +17,7 @@
         <!-- Styles -->
         @livewireStyles
     </head>
-    <body class="font-sans antialiased bg-slate-950 text-slate-200" style="font-family: 'Manrope', sans-serif;">
+    <body class="public-layout font-sans antialiased bg-slate-950 text-slate-200" style="font-family: 'Manrope', sans-serif;">
         <div class="relative min-h-screen overflow-hidden">
             <div class="pointer-events-none absolute inset-0">
                 <div class="absolute inset-0 bg-slate-950/85"></div>
