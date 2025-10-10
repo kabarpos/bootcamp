@@ -8,6 +8,7 @@ use App\Models\Batch;
 use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\EmailNotificationService;
 use App\Services\MidtransService;
 use App\Services\WhatsappNotificationService;
 use Carbon\Carbon;
@@ -21,11 +22,16 @@ class PaymentController extends Controller
 {
     protected $midtransService;
     protected $whatsappService;
+    protected $emailService;
 
-    public function __construct(MidtransService $midtransService, WhatsappNotificationService $whatsappService)
-    {
+    public function __construct(
+        MidtransService $midtransService,
+        WhatsappNotificationService $whatsappService,
+        EmailNotificationService $emailService
+    ) {
         $this->midtransService = $midtransService;
         $this->whatsappService = $whatsappService;
+        $this->emailService = $emailService;
     }
 
     /**
@@ -429,6 +435,17 @@ class PaymentController extends Controller
             'expires_at' => optional($order->expired_at)->format('d M Y H:i') ?? '-',
             'app_name' => config('app.name'),
         ]);
+
+        if ($user->email) {
+            $this->emailService->sendTemplate('order_created', $user->email, [
+                'name' => $user->name,
+                'invoice_no' => $order->invoice_no,
+                'bootcamp_title' => optional($order->enrollment->batch->bootcamp)->title,
+                'amount' => number_format((float) $order->total, 0, ',', '.'),
+                'expires_at' => optional($order->expired_at)->format('d M Y H:i') ?? '-',
+                'app_name' => config('app.name'),
+            ]);
+        }
     }
 
     protected function notifyPaymentSuccess(Order $order): void
@@ -446,6 +463,16 @@ class PaymentController extends Controller
             'bootcamp_title' => optional($order->enrollment->batch->bootcamp)->title,
             'app_name' => config('app.name'),
         ]);
+
+        if ($user->email) {
+            $this->emailService->sendTemplate('payment_success', $user->email, [
+                'name' => $user->name,
+                'invoice_no' => $order->invoice_no,
+                'enrollment_status' => ucfirst($order->enrollment->status),
+                'bootcamp_title' => optional($order->enrollment->batch->bootcamp)->title,
+                'app_name' => config('app.name'),
+            ]);
+        }
     }
 
     protected function notifyPaymentFailed(Order $order): void
@@ -462,6 +489,15 @@ class PaymentController extends Controller
             'checkout_url' => route('payment.checkout', $order->id),
             'app_name' => config('app.name'),
         ]);
+
+        if ($user->email) {
+            $this->emailService->sendTemplate('payment_failed', $user->email, [
+                'name' => $user->name,
+                'invoice_no' => $order->invoice_no,
+                'checkout_url' => route('payment.checkout', $order->id),
+                'app_name' => config('app.name'),
+            ]);
+        }
     }
 }
 

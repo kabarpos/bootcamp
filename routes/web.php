@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\WhatsappSettingsController;
+use App\Http\Controllers\Admin\EmailSettingsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
@@ -100,6 +101,11 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::put('settings/whatsapp', [WhatsappSettingsController::class, 'update'])->name('settings.whatsapp.update');
         Route::get('settings/whatsapp/templates/{template}/edit', [WhatsappSettingsController::class, 'editTemplate'])->name('settings.whatsapp.templates.edit');
         Route::put('settings/whatsapp/templates/{template}', [WhatsappSettingsController::class, 'updateTemplate'])->name('settings.whatsapp.templates.update');
+
+        Route::get('settings/email', [EmailSettingsController::class, 'edit'])->name('settings.email.edit');
+        Route::put('settings/email', [EmailSettingsController::class, 'update'])->name('settings.email.update');
+        Route::get('settings/email/templates/{template}/edit', [EmailSettingsController::class, 'editTemplate'])->name('settings.email.templates.edit');
+        Route::put('settings/email/templates/{template}', [EmailSettingsController::class, 'updateTemplate'])->name('settings.email.templates.update');
     });
 
 

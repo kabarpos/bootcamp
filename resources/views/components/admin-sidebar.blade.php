@@ -131,6 +131,10 @@
                        class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.settings.whatsapp.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }}">
                         WhatsApp Notifications
                     </a>
+                    <a href="{{ route('admin.settings.email.edit') }}" 
+                       class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.settings.email.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }}">
+                        Email Notifications
+                    </a>
                 </div>
             </div>
         </div>

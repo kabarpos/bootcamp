@@ -18,10 +18,9 @@ class DatabaseSeeder extends Seeder
         
         // Run the SettingSeeder to create settings data
         $this->call(SettingSeeder::class);
-
-        // Seed default WhatsApp templates
         $this->call(WhatsappTemplateSeeder::class);
-        
+        $this->call(EmailTemplateSeeder::class);
+
         // Run the TestDataSeeder to create sample data
         $this->call(TestDataSeeder::class);
         

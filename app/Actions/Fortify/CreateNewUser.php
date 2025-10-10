@@ -48,6 +48,7 @@ class CreateNewUser implements CreatesNewUsers
         $user->roles()->syncWithoutDetaching([$defaultRole->id]);
 
         $this->sendWhatsappVerification($user);
+        $user->sendEmailVerificationNotification();
 
         return $user;
     }

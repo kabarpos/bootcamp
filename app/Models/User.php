@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Services\EmailNotificationService;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
@@ -129,5 +135,48 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin()
     {
         return $this->hasRole('admin');
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $service = app(EmailNotificationService::class);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            ['id' => $this->getKey(), 'hash' => sha1($this->email)]
+        );
+
+        $sent = $service->sendTemplate('registration_verification', $this->email, [
+            'name' => $this->name,
+            'app_name' => config('app.name'),
+            'verification_link' => $verificationUrl,
+            'expires_in' => Config::get('auth.verification.expire', 60) . ' menit',
+        ]);
+
+        if (! $sent) {
+            $this->notify(new VerifyEmail);
+        }
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $service = app(EmailNotificationService::class);
+
+        $resetUrl = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->email,
+        ], false));
+
+        $sent = $service->sendTemplate('password_reset', $this->email, [
+            'name' => $this->name,
+            'app_name' => config('app.name'),
+            'reset_link' => $resetUrl,
+            'expires_in' => Config::get('auth.passwords.' . Config::get('auth.defaults.passwords') . '.expire', 60) . ' menit',
+        ]);
+
+        if (! $sent) {
+            $this->notify(new ResetPassword($token));
+        }
     }
 }
