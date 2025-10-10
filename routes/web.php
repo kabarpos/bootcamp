@@ -13,10 +13,15 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\WhatsappSettingsController;
 use App\Http\Controllers\Admin\EmailSettingsController;
 use App\Http\Controllers\Admin\RecordingController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Webhook\DripsenderWebhookController;
+
+Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
 
 // Public marketing pages
 Route::get('/', [PublicController::class, 'index'])->name('public.homepage');

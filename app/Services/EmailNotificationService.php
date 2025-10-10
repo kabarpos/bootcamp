@@ -6,7 +6,6 @@ use App\Models\EmailTemplate;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class EmailNotificationService
 {
@@ -34,10 +33,12 @@ class EmailNotificationService
 
         try {
             Mail::send([], [], function ($message) use ($email, $subject, $body) {
-                $message->to($email)->subject($subject)->setBody($this->formatBody($body), 'text/html');
+                $message->to($email)->subject($subject);
+                $message->html($this->formatHtmlBody($body));
+                $message->text($this->formatTextBody($body));
             });
 
-            if (count(Mail::failures()) > 0) {
+            if (method_exists(Mail::getFacadeRoot(), 'failures') && count(Mail::failures()) > 0) {
                 Log::error('Email sending failed', ['email' => $email, 'template' => $templateKey]);
                 return false;
             }
@@ -60,13 +61,20 @@ class EmailNotificationService
         }, $content);
     }
 
-    protected function formatBody(string $body): string
+    protected function formatHtmlBody(string $body): string
     {
         $escaped = e($body);
-        $withBreaks = nl2br($escaped);
+        $withBreaks = nl2br($escaped, false);
 
-        return '<p style="font-family:Arial, sans-serif; font-size:14px; color:#1f2937;">' .
-            str_replace("\n", '<br>', $withBreaks) .
-            '</p>';
+        return '<div style="font-family:Arial, sans-serif; font-size:14px; line-height:1.6; color:#1f2937;">' .
+            $withBreaks .
+            '</div>';
+    }
+
+    protected function formatTextBody(string $body): string
+    {
+        $normalized = preg_replace("/\r\n|\r|\n/", PHP_EOL, $body);
+
+        return trim(strip_tags($normalized));
     }
 }

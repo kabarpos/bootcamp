@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\WhatsappNotificationService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -48,7 +49,6 @@ class CreateNewUser implements CreatesNewUsers
         $user->roles()->syncWithoutDetaching([$defaultRole->id]);
 
         $this->sendWhatsappVerification($user);
-        $user->sendEmailVerificationNotification();
 
         return $user;
     }
@@ -84,11 +84,18 @@ class CreateNewUser implements CreatesNewUsers
 
         $expiresIn = config('auth.verification.expire', 60) . ' menit';
 
-        $service->sendTemplate('registration_verification', $user->whatsapp_number, [
+        $sent = $service->sendTemplate('registration_verification', $user->whatsapp_number, [
             'name' => $user->name,
             'app_name' => config('app.name'),
             'verification_link' => $verificationUrl,
             'expires_in' => $expiresIn,
         ]);
+
+        if (! $sent) {
+            Log::warning('Failed to send WhatsApp verification message', [
+                'user_id' => $user->getKey(),
+                'whatsapp_number' => $user->whatsapp_number,
+            ]);
+        }
     }
 }

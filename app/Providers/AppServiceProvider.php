@@ -46,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
 
                 if (Setting::get('email_enabled', false)) {
                     $config = [
+                        'mail.default' => 'smtp',
                         'mail.mailers.smtp.host' => Setting::get('email_smtp_host', config('mail.mailers.smtp.host')),
                         'mail.mailers.smtp.port' => Setting::get('email_smtp_port', config('mail.mailers.smtp.port')),
                         'mail.mailers.smtp.username' => Setting::get('email_smtp_username', config('mail.mailers.smtp.username')),

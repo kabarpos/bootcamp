@@ -6,14 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateWhatsappSettingsRequest;
 use App\Models\Setting;
 use App\Models\WhatsappTemplate;
+use App\Services\WhatsappNotificationService;
 use Illuminate\Http\Request;
 
 class WhatsappSettingsController extends Controller
 {
     public function edit()
     {
+        $enabledSetting = Setting::get('whatsapp_enabled', false);
+        $enabled = is_bool($enabledSetting)
+            ? $enabledSetting
+            : filter_var($enabledSetting, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
         $settings = [
-            'enabled' => (bool) Setting::get('whatsapp_enabled', false),
+            'enabled' => (bool) $enabled,
             'api_key' => Setting::get('whatsapp_api_key'),
             'sender_number' => Setting::get('whatsapp_sender_number'),
             'webhook_token' => Setting::get('whatsapp_webhook_token'),
@@ -35,8 +41,30 @@ class WhatsappSettingsController extends Controller
         Setting::set('whatsapp_webhook_token', $data['webhook_token']);
         Setting::set('whatsapp_api_base_url', $data['api_base_url'] ?? 'https://app.dripsender.id/api/v1');
 
+        $message = 'Pengaturan WhatsApp berhasil disimpan.';
+
+        if ($data['enabled']) {
+            $service = app(WhatsappNotificationService::class);
+            $diagnosis = $service->diagnoseConnection(
+                $data['api_key'] ?? null,
+                $data['api_base_url'] ?? null
+            );
+
+            if (! $diagnosis['ok']) {
+                Setting::set('whatsapp_enabled', false);
+
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['api_key' => $diagnosis['message']])
+                    ->with('error', 'Gagal mengaktifkan WhatsApp: ' . $diagnosis['message']);
+            }
+
+            $message .= ' ' . $diagnosis['message'];
+        }
+
         return redirect()->route('admin.settings.whatsapp.edit')
-            ->with('success', 'Pengaturan WhatsApp berhasil disimpan.');
+            ->with('success', $message);
     }
 
     public function editTemplate(WhatsappTemplate $template)
