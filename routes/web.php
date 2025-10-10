@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\WhatsappSettingsController;
 use App\Http\Controllers\Admin\EmailSettingsController;
+use App\Http\Controllers\Admin\RecordingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +89,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::resource('orders', OrderController::class);
         Route::get('orders/export/csv', [OrderController::class, 'export'])->name('orders.export');
         Route::get('orders/statistics', [OrderController::class, 'getStatistics'])->name('orders.statistics');
+
+        Route::resource('recordings', RecordingController::class)->except(['show']);
 
         Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
         Route::resource('permissions', PermissionController::class)->except(['show']);

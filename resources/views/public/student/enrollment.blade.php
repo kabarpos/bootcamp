@@ -127,6 +127,74 @@
                     </div>
                 </section>
 
+                @if($recordings->isNotEmpty())
+                    <section class="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 backdrop-blur-2xl sm:p-8">
+                        <div class="flex items-center justify-between gap-4">
+                            <h2 class="text-lg font-semibold text-white">Rekaman sesi</h2>
+                            <span class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400/80">
+                                {{ $recordings->count() }} video
+                            </span>
+                        </div>
+                        <p class="mt-2 text-sm text-slate-300/85">
+                            Tonton ulang sesi live yang sudah berlangsung. Tautan bersifat pribadi dan hanya bisa diakses oleh peserta batch ini.
+                        </p>
+
+                        <div class="mt-6 space-y-6">
+                            @foreach($recordings as $recording)
+                                <article class="rounded-2xl border border-white/10 bg-slate-900/50 p-4 sm:p-6">
+                                    <div class="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                                        <div class="space-y-3">
+                                            <div class="flex items-center gap-3 text-xs text-slate-400">
+                                                @if($recording->recorded_at)
+                                                    <span class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 font-semibold text-slate-200">
+                                                        {{ $recording->recorded_at->format('d M Y H:i') }} WIB
+                                                    </span>
+                                                @endif
+                                                <span class="uppercase tracking-[0.28em] text-slate-500">Video</span>
+                                            </div>
+                                            <h3 class="text-xl font-semibold text-white">
+                                                {{ $recording->title }}
+                                            </h3>
+                                            @if($recording->description)
+                                                <p class="text-sm leading-relaxed text-slate-300/85">
+                                                    {{ $recording->description }}
+                                                </p>
+                                            @endif
+                                            <div class="flex flex-wrap gap-3">
+                                                <a href="{{ $recording->youtube_url }}" target="_blank" rel="noopener"
+                                                   class="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white">
+                                                    Buka di YouTube
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H9.75m9.75 0V14.25" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3">
+                                            @if($recording->youtube_id)
+                                                <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-black/60 shadow-[0_25px_60px_-35px_rgba(56,189,248,0.55)]">
+                                                    <div class="aspect-video">
+                                                        <iframe
+                                                            class="h-full w-full rounded-2xl"
+                                                            src="{{ $recording->embed_url }}?rel=0"
+                                                            title="{{ $recording->title }}"
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                            allowfullscreen
+                                                            loading="lazy"
+                                                        ></iframe>
+                                                    </div>
+                                                </div>
+                                            @elseif($recording->thumbnail_url)
+                                                <img src="{{ $recording->thumbnail_url }}" alt="{{ $recording->title }}" class="w-full rounded-2xl border border-white/10 object-cover">
+                                            @endif
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
                 <section class="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 backdrop-blur-2xl sm:p-8">
                     <h2 class="text-lg font-semibold text-white">Lokasi &amp; akses</h2>
                     <div class="mt-6 space-y-5 text-sm text-slate-300/90">

@@ -30,7 +30,7 @@
             </a>
 
             <!-- Bootcamp Management -->
-            <div x-data="{ open: {{ request()->routeIs('admin.bootcamps*') || request()->routeIs('admin.batches*') ? 'true' : 'false' }} }">
+            <div x-data="{ open: {{ request()->routeIs('admin.bootcamps*') || request()->routeIs('admin.batches*') || request()->routeIs('admin.recordings*') ? 'true' : 'false' }} }">
                 <button @click="open = !open" 
                         class="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                     <div class="flex items-center">
@@ -51,6 +51,10 @@
                     <a href="{{ route('admin.batches.index') }}" 
                        class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.batches*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }}">
                         Kelola Batch
+                    </a>
+                    <a href="{{ route('admin.recordings.index') }}" 
+                       class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.recordings*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }}">
+                        Rekaman Bootcamp
                     </a>
                 </div>
             </div>

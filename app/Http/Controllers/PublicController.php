@@ -181,6 +181,11 @@ class PublicController extends Controller
         $enrollment->load([
             'batch.bootcamp',
             'batch.city',
+            'batch.recordings' => fn ($query) => $query
+                ->published()
+                ->orderBy('position')
+                ->orderByDesc('recorded_at')
+                ->orderByDesc('created_at'),
             'orders.payments',
         ]);
 
@@ -214,6 +219,7 @@ class PublicController extends Controller
             ],
             'resourcesUrl' => $bootcamp?->slug ? route('public.resources', $bootcamp->slug) : null,
             'checkoutUrl' => ($latestOrder && $latestOrder->status === 'pending') ? route('payment.checkout', $latestOrder->id) : null,
+            'recordings' => $batch?->recordings ?? collect(),
         ]);
     }
 

@@ -58,6 +58,11 @@ class Batch extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function recordings()
+    {
+        return $this->hasMany(BootcampRecording::class);
+    }
+
     /**
      * Scope for active batches.
      */
