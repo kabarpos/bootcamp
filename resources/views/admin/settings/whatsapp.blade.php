@@ -85,16 +85,17 @@
             <h2 class="text-xl font-semibold text-gray-800">Template Pesan</h2>
             <p class="mt-1 text-sm text-gray-500">Gunakan placeholder sesuai kebutuhan seperti <code>{{ '{name}' }}</code>, <code>{{ '{invoice_no}' }}</code>, dll.</p>
         </div>
-        <div class="divide-y divide-gray-200">
+        <div class="p-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             @forelse($templates as $template)
-                <div class="px-6 py-4">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800">{{ $template->name }}</h3>
+                <div class="rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition">
+                    <div class="px-5 py-4 flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                            <h3 class="text-lg font-semibold text-gray-800 truncate">{{ $template->name }}</h3>
                             <p class="mt-1 text-sm text-gray-500">Kode: {{ $template->key }}</p>
                             <p class="mt-1 text-sm text-gray-500">Placeholder: {{ implode(', ', $template->requiredPlaceholders()) ?: '-' }}</p>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3 flex-shrink-0">
                             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $template->is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
                                 {{ $template->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
@@ -102,15 +103,16 @@
                                class="text-indigo-600 hover:text-indigo-900">Edit</a>
                         </div>
                     </div>
-                    <div class="mt-4 bg-gray-50 rounded-md p-4 text-sm text-gray-700 whitespace-pre-wrap border border-gray-100">
+                    <div class="border-t border-gray-200 bg-gray-50 rounded-b-lg px-5 py-4 text-sm text-gray-700 whitespace-pre-wrap">
                         {{ $template->content }}
                     </div>
                 </div>
             @empty
-                <div class="px-6 py-8 text-center text-sm text-gray-500">
+                <div class="col-span-2 py-8 text-center text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg">
                     Belum ada template yang tersedia.
                 </div>
             @endforelse
+            </div>
         </div>
     </div>
 </div>
