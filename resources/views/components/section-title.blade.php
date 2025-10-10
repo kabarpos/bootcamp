@@ -1,13 +1,17 @@
-<div class="md:col-span-1 flex justify-between">
-    <div class="px-4 sm:px-0">
-        <h3 class="text-lg font-medium text-gray-900">{{ $title }}</h3>
+<div {{ $attributes->merge(['class' => 'flex flex-col justify-between rounded-[32px] border border-white/10 bg-slate-950/70 p-6 shadow-[0_30px_90px_-45px_rgba(56,189,248,0.55)] backdrop-blur-2xl sm:p-8']) }}>
+    <div class="space-y-3">
+        <h3 class="text-xl font-semibold text-white">
+            {{ $title }}
+        </h3>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="text-sm leading-relaxed text-slate-300/85">
             {{ $description }}
         </p>
     </div>
 
-    <div class="px-4 sm:px-0">
-        {{ $aside ?? '' }}
-    </div>
+    @isset($aside)
+        <div class="mt-6 text-sm text-slate-300/80">
+            {{ $aside }}
+        </div>
+    @endisset
 </div>

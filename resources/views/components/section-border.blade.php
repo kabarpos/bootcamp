@@ -1,5 +1,3 @@
-<div class="hidden sm:block">
-    <div class="py-8">
-        <div class="border-t border-gray-200"></div>
-    </div>
+<div {{ $attributes->merge(['class' => 'py-8']) }}>
+    <div class="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
 </div>

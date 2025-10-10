@@ -10,7 +10,7 @@
     $brandPrimary = $brandSegments[0] ?? $brandName;
     $brandSecondary = $brandSegments[1] ?? 'Bootcamp';
     $user = auth()->user();
-    $isDashboard = request()->routeIs('public.dashboard');
+    $isDashboard = request()->routeIs('public.dashboard') || request()->routeIs('profile.show');
     $nameParts = $user ? preg_split('/\s+/', trim($user->name)) : [];
     $initials = $user
         ? collect($nameParts)
