@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\MidtransService;
+use App\Services\WhatsappNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,10 +20,12 @@ use Illuminate\Support\Str;
 class PaymentController extends Controller
 {
     protected $midtransService;
+    protected $whatsappService;
 
-    public function __construct(MidtransService $midtransService)
+    public function __construct(MidtransService $midtransService, WhatsappNotificationService $whatsappService)
     {
         $this->midtransService = $midtransService;
+        $this->whatsappService = $whatsappService;
     }
 
     /**
@@ -112,6 +115,8 @@ class PaymentController extends Controller
         if ($order === 'full') {
             return redirect()->back()->with('error', 'This batch is full.');
         }
+
+        $this->notifyOrderCreated($order);
 
         return redirect()->route('payment.checkout', $order->id);
     }
@@ -344,6 +349,7 @@ class PaymentController extends Controller
             );
 
             Log::info('Payment recorded or updated for order', ['order_id' => $order->id]);
+            $this->notifyPaymentSuccess($order);
         } elseif ($result['status'] === 'expired') {
             Payment::updateOrCreate(
                 ['order_id' => $order->id],
@@ -360,6 +366,7 @@ class PaymentController extends Controller
             );
 
             $order->enrollment->update(['status' => 'pending']);
+            $this->notifyPaymentFailed($order);
         } elseif ($result['status'] === 'refunded') {
             Payment::updateOrCreate(
                 ['order_id' => $order->id],
@@ -376,6 +383,7 @@ class PaymentController extends Controller
             );
 
             $order->enrollment->update(['status' => 'cancelled']);
+            $this->notifyPaymentFailed($order);
         } elseif ($result['status'] === 'failed') {
             Payment::updateOrCreate(
                 ['order_id' => $order->id],
@@ -390,6 +398,7 @@ class PaymentController extends Controller
                     'ewallet_ref' => $existingPayment?->ewallet_ref,
                 ]
             );
+            $this->notifyPaymentFailed($order);
         }
     }
 
@@ -402,6 +411,57 @@ class PaymentController extends Controller
             'credit_card' => 'cc',
             default => 'manual',
         };
+    }
+
+    protected function notifyOrderCreated(Order $order): void
+    {
+        $user = $order->enrollment->user;
+
+        if (! $user || ! $user->whatsapp_number) {
+            return;
+        }
+
+        $this->whatsappService->sendTemplate('order_created', $user->whatsapp_number, [
+            'name' => $user->name,
+            'invoice_no' => $order->invoice_no,
+            'bootcamp_title' => optional($order->enrollment->batch->bootcamp)->title,
+            'amount' => number_format((float) $order->total, 0, ',', '.'),
+            'expires_at' => optional($order->expired_at)->format('d M Y H:i') ?? '-',
+            'app_name' => config('app.name'),
+        ]);
+    }
+
+    protected function notifyPaymentSuccess(Order $order): void
+    {
+        $user = $order->enrollment->user;
+
+        if (! $user || ! $user->whatsapp_number) {
+            return;
+        }
+
+        $this->whatsappService->sendTemplate('payment_success', $user->whatsapp_number, [
+            'name' => $user->name,
+            'invoice_no' => $order->invoice_no,
+            'enrollment_status' => ucfirst($order->enrollment->status),
+            'bootcamp_title' => optional($order->enrollment->batch->bootcamp)->title,
+            'app_name' => config('app.name'),
+        ]);
+    }
+
+    protected function notifyPaymentFailed(Order $order): void
+    {
+        $user = $order->enrollment->user;
+
+        if (! $user || ! $user->whatsapp_number) {
+            return;
+        }
+
+        $this->whatsappService->sendTemplate('payment_failed', $user->whatsapp_number, [
+            'name' => $user->name,
+            'invoice_no' => $order->invoice_no,
+            'checkout_url' => route('payment.checkout', $order->id),
+            'app_name' => config('app.name'),
+        ]);
     }
 }
 

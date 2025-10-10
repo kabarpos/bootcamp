@@ -9,9 +9,12 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\WhatsappSettingsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Webhook\DripsenderWebhookController;
 
 // Public marketing pages
 Route::get('/', [PublicController::class, 'index'])->name('public.homepage');
@@ -41,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 // Midtrans webhook (CSRF exemption configured in bootstrap/app.php)
 Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
+Route::post('/webhooks/dripsender', DripsenderWebhookController::class)->name('webhooks.dripsender');
 
 // Administration area
 Route::middleware(['auth', 'verified', 'role:admin'])
@@ -88,6 +92,14 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::resource('permissions', PermissionController::class)->except(['show']);
         Route::resource('users', UserController::class);
         Route::resource('roles', RoleController::class);
+
+        Route::get('settings/midtrans', [SettingsController::class, 'editMidtrans'])->name('settings.midtrans.edit');
+        Route::put('settings/midtrans', [SettingsController::class, 'updateMidtrans'])->name('settings.midtrans.update');
+
+        Route::get('settings/whatsapp', [WhatsappSettingsController::class, 'edit'])->name('settings.whatsapp.edit');
+        Route::put('settings/whatsapp', [WhatsappSettingsController::class, 'update'])->name('settings.whatsapp.update');
+        Route::get('settings/whatsapp/templates/{template}/edit', [WhatsappSettingsController::class, 'editTemplate'])->name('settings.whatsapp.templates.edit');
+        Route::put('settings/whatsapp/templates/{template}', [WhatsappSettingsController::class, 'updateTemplate'])->name('settings.whatsapp.templates.update');
     });
 
 

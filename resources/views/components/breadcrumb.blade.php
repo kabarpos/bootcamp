@@ -51,10 +51,11 @@
                         // Skip 'index', 'create', 'edit', 'show' for cleaner breadcrumb
                         if (!in_array($segment, ['index', 'create', 'edit', 'show'])) {
                             $title = ucfirst(str_replace('-', ' ', $segment));
-                            $breadcrumbs[] = [
-                                'title' => $title,
-                                'url' => $index < count($segments) - 1 ? route($currentPath . '.index') : null
-                            ];
+                        $routeName = $currentPath . '.index';
+                        $breadcrumbs[] = [
+                            'title' => $title,
+                            'url' => ($index < count($segments) - 1 && Route::has($routeName)) ? route($routeName) : null
+                        ];
                         }
                     }
                     

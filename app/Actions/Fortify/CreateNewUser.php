@@ -4,7 +4,10 @@ namespace App\Actions\Fortify;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Services\WhatsappNotificationService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Laravel\Jetstream\Jetstream;
@@ -44,6 +47,8 @@ class CreateNewUser implements CreatesNewUsers
 
         $user->roles()->syncWithoutDetaching([$defaultRole->id]);
 
+        $this->sendWhatsappVerification($user);
+
         return $user;
     }
 
@@ -56,5 +61,33 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         return $normalized;
+    }
+
+    private function sendWhatsappVerification(User $user): void
+    {
+        $service = app(WhatsappNotificationService::class);
+
+        if (! $service->enabled()) {
+            return;
+        }
+
+        if (! $user->whatsapp_number) {
+            return;
+        }
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes((int) config('auth.verification.expire', 60)),
+            ['id' => $user->getKey(), 'hash' => sha1($user->email)]
+        );
+
+        $expiresIn = config('auth.verification.expire', 60) . ' menit';
+
+        $service->sendTemplate('registration_verification', $user->whatsapp_number, [
+            'name' => $user->name,
+            'app_name' => config('app.name'),
+            'verification_link' => $verificationUrl,
+            'expires_in' => $expiresIn,
+        ]);
     }
 }

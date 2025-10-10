@@ -107,6 +107,32 @@
                 </svg>
                 Certificates
             </a>
+
+            <!-- Settings Group -->
+            <div x-data="{ open: {{ request()->routeIs('admin.settings.*') ? 'true' : 'false' }} }">
+                <button @click="open = !open" 
+                        class="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <div class="flex items-center">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18"/><path d="M12 9v3l2 2"/></g>
+                        </svg>
+                        Setting
+                    </div>
+                    <svg class="h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="open" x-transition class="ml-6 mt-2 space-y-1">
+                    <a href="{{ route('admin.settings.midtrans.edit') }}" 
+                       class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.settings.midtrans.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }}">
+                        Midtrans Settings
+                    </a>
+                    <a href="{{ route('admin.settings.whatsapp.edit') }}" 
+                       class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.settings.whatsapp.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }}">
+                        WhatsApp Notifications
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
