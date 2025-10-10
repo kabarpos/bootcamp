@@ -43,12 +43,14 @@ class EmailVerificationTest extends TestCase
             ['id' => $user->id, 'hash' => sha1($user->email)]
         );
 
-        $response = $this->actingAs($user)->get($verificationUrl);
+        $response = $this->get($verificationUrl);
 
         Event::assertDispatched(Verified::class);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(route('public.dashboard', absolute: false).'?verified=1');
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status', trans('auth.verify_success'));
+        $this->assertGuest();
     }
 
     public function test_email_can_not_verified_with_invalid_hash(): void
@@ -65,8 +67,12 @@ class EmailVerificationTest extends TestCase
             ['id' => $user->id, 'hash' => sha1('wrong-email')]
         );
 
-        $this->actingAs($user)->get($verificationUrl);
+        $response = $this->get($verificationUrl);
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors('email');
+        $this->assertGuest();
     }
 }
+

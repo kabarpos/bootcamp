@@ -107,6 +107,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
         Route::get('settings/whatsapp', [WhatsappSettingsController::class, 'edit'])->name('settings.whatsapp.edit');
         Route::put('settings/whatsapp', [WhatsappSettingsController::class, 'update'])->name('settings.whatsapp.update');
+        Route::post('settings/whatsapp/test', [WhatsappSettingsController::class, 'testConnection'])->name('settings.whatsapp.test');
         Route::get('settings/whatsapp/templates/{template}/edit', [WhatsappSettingsController::class, 'editTemplate'])->name('settings.whatsapp.templates.edit');
         Route::put('settings/whatsapp/templates/{template}', [WhatsappSettingsController::class, 'updateTemplate'])->name('settings.whatsapp.templates.update');
 

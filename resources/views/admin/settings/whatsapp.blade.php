@@ -26,6 +26,21 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="mb-6 rounded-md bg-rose-50 p-4 border border-rose-200">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.5a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0V6.5zm0 6.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-rose-700">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800">Konfigurasi API</h2>
@@ -50,8 +65,11 @@
                     <div>
                         <label for="api_key" class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
                         <input type="text" name="api_key" id="api_key" value="{{ old('api_key', $settings['api_key']) }}"
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('api_key') border-rose-400 focus:border-rose-500 focus:ring-rose-500 @enderror">
                         <p class="mt-2 text-xs text-gray-500">Gunakan API Key dari Dripsender Dashboard.</p>
+                        @error('api_key')
+                            <p class="mt-2 text-xs text-rose-500">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="sender_number" class="block text-sm font-medium text-gray-700 mb-1">Nomor Pengirim</label>
@@ -62,7 +80,14 @@
                     <div>
                         <label for="api_base_url" class="block text-sm font-medium text-gray-700 mb-1">API Base URL</label>
                         <input type="url" name="api_base_url" id="api_base_url" value="{{ old('api_base_url', $settings['api_base_url']) }}"
-                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="https://app.dripsender.id/api/v1">
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="https://app.dripsender.com/api/v3">
+                        <p class="mt-2 text-xs text-gray-500">Gunakan base URL sesuai dokumentasi Dripsender (contoh: <code>https://app.dripsender.com/api/v3</code>).</p>
+                    </div>
+                    <div>
+                        <label for="message_endpoint" class="block text-sm font-medium text-gray-700 mb-1">Endpoint Pengiriman</label>
+                        <input type="text" name="message_endpoint" id="message_endpoint" value="{{ old('message_endpoint', $settings['message_endpoint']) }}"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="messages/send">
+                        <p class="mt-2 text-xs text-gray-500">Isi dengan path endpoint sesuai API (misal: <code>messages/send</code> atau <code>message/send</code>).</p>
                     </div>
                     <div>
                         <label for="webhook_token" class="block text-sm font-medium text-gray-700 mb-1">Webhook Token</label>
@@ -77,6 +102,23 @@
                             class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">Simpan Pengaturan</button>
                 </div>
             </form>
+
+            <div class="mt-6 flex flex-col gap-3 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-slate-700">Tes koneksi Dripsender</p>
+                    <p class="text-xs text-slate-500 mt-1">Gunakan tombol ini untuk memastikan API Key, URL, dan nomor pengirim bisa terhubung sebelum mengaktifkan notifikasi.</p>
+                </div>
+                <form action="{{ route('admin.settings.whatsapp.test') }}" method="POST" class="flex-shrink-0">
+                    @csrf
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        Test Koneksi
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

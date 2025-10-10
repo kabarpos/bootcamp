@@ -14,7 +14,7 @@ class WhatsappNotificationService
 
     public function __construct()
     {
-        $this->apiBaseUrl = Setting::get('whatsapp_api_base_url', 'https://app.dripsender.id/api/v1');
+        $this->apiBaseUrl = Setting::get('whatsapp_api_base_url', 'https://app.dripsender.com/api/v3');
     }
 
     public function enabled(): bool
@@ -69,7 +69,11 @@ class WhatsappNotificationService
         }
 
         try {
-            Http::timeout(5)
+            Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Accept' => 'application/json',
+            ])
+                ->timeout(5)
                 ->connectTimeout(5)
                 ->withOptions(['http_errors' => false])
                 ->get($baseUrl);
@@ -85,7 +89,27 @@ class WhatsappNotificationService
             ];
         }
 
-        $endpoints = ['/me', '/profile', '/device'];
+        $endpoints = [
+            '/me',
+            '/profile',
+            '/device',
+            '/integration/profile',
+            '/integration/device',
+            '/integration/account',
+            '/integration/me',
+            '/integration/status',
+        ];
+
+        if (str_ends_with($baseUrl, '/api/v1')) {
+            $endpoints = array_merge($endpoints, [
+                '/v1/me',
+                '/v1/profile',
+                '/v1/device',
+                '/v3/me',
+                '/v3/profile',
+                '/v3/device',
+            ]);
+        }
         $lastResponse = null;
 
         foreach ($endpoints as $endpoint) {
@@ -147,6 +171,14 @@ class WhatsappNotificationService
         }
 
         if ($lastResponse) {
+            if ($lastResponse->status() === 404) {
+                return [
+                    'ok' => false,
+                    'code' => 'endpoint_not_found',
+                    'message' => 'Tidak dapat memverifikasi API key. Respons terakhir: HTTP 404. Sesuaikan base URL sesuai dokumentasi Dripsender (contoh: https://app.dripsender.com/api/v3) atau periksa akses API Anda.',
+                ];
+            }
+
             return [
                 'ok' => false,
                 'code' => 'unrecognized_response',
@@ -185,37 +217,62 @@ class WhatsappNotificationService
 
         $normalized = $this->normalizePhoneNumber($phoneNumber);
 
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'Accept' => 'application/json',
-            ])
-                ->timeout(15)
-                ->connectTimeout(5)
-                ->retry(2, 500)
-                ->withOptions(['http_errors' => false])
-                ->post($this->apiBaseUrl . '/message/send', [
-                'sender' => $sender,
-                'number' => $normalized,
-                'type' => 'text',
-                'text' => $message,
-            ]);
+        $endpoints = [
+            $this->resolveMessageEndpoint(),
+            'messages/send',
+            'message/send',
+            'messages',
+            'message',
+        ];
 
-            if (! $response->successful()) {
+        foreach ($endpoints as $endpoint) {
+            $url = rtrim($this->apiBaseUrl, '/') . '/' . ltrim($endpoint, '/');
+
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Accept' => 'application/json',
+                ])
+                    ->timeout(15)
+                    ->connectTimeout(5)
+                    ->retry(2, 500)
+                    ->withOptions(['http_errors' => false])
+                    ->post($url, [
+                        'sender' => $sender,
+                        'number' => $normalized,
+                        'type' => 'text',
+                        'text' => $message,
+                    ]);
+
+                if ($response->successful()) {
+                    return true;
+                }
+
+                if ($response->status() === 404) {
+                    continue;
+                }
+
                 Log::error('Failed to send WhatsApp message', [
                     'status' => $response->status(),
                     'body' => Str::limit($response->body(), 500),
+                    'endpoint' => $url,
                 ]);
-                return false;
-            }
 
-            return true;
-        } catch (\Throwable $throwable) {
-            Log::error('WhatsApp notification exception', [
-                'message' => $throwable->getMessage(),
-            ]);
-            return false;
+                return false;
+            } catch (\Throwable $throwable) {
+                Log::warning('WhatsApp notification attempt failed', [
+                    'endpoint' => $url,
+                    'message' => $throwable->getMessage(),
+                ]);
+            }
         }
+
+        Log::error('Failed to send WhatsApp message', [
+            'status' => 404,
+            'body' => 'Semua endpoint kandidat mengembalikan 404 Not Found.',
+        ]);
+
+        return false;
     }
 
     protected function normalizePhoneNumber(string $phoneNumber): string
@@ -236,5 +293,12 @@ class WhatsappNotificationService
     protected function getApiKey(): ?string
     {
         return Setting::get('whatsapp_api_key');
+    }
+
+    protected function resolveMessageEndpoint(): string
+    {
+        $endpoint = Setting::get('whatsapp_message_endpoint', 'messages/send');
+
+        return $endpoint ?: 'messages/send';
     }
 }

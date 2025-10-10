@@ -23,7 +23,8 @@ class WhatsappSettingsController extends Controller
             'api_key' => Setting::get('whatsapp_api_key'),
             'sender_number' => Setting::get('whatsapp_sender_number'),
             'webhook_token' => Setting::get('whatsapp_webhook_token'),
-            'api_base_url' => Setting::get('whatsapp_api_base_url', 'https://app.dripsender.id/api/v1'),
+            'api_base_url' => Setting::get('whatsapp_api_base_url', 'https://app.dripsender.com/api/v3'),
+            'message_endpoint' => Setting::get('whatsapp_message_endpoint', 'messages/send'),
         ];
 
         $templates = WhatsappTemplate::orderBy('name')->get();
@@ -39,7 +40,8 @@ class WhatsappSettingsController extends Controller
         Setting::set('whatsapp_api_key', $data['api_key']);
         Setting::set('whatsapp_sender_number', $data['sender_number']);
         Setting::set('whatsapp_webhook_token', $data['webhook_token']);
-        Setting::set('whatsapp_api_base_url', $data['api_base_url'] ?? 'https://app.dripsender.id/api/v1');
+        Setting::set('whatsapp_api_base_url', $data['api_base_url'] ?? 'https://app.dripsender.com/api/v3');
+        Setting::set('whatsapp_message_endpoint', $data['message_endpoint'] ?? 'messages/send');
 
         $message = 'Pengaturan WhatsApp berhasil disimpan.';
 
@@ -65,6 +67,23 @@ class WhatsappSettingsController extends Controller
 
         return redirect()->route('admin.settings.whatsapp.edit')
             ->with('success', $message);
+    }
+
+    public function testConnection(Request $request)
+    {
+        $service = app(WhatsappNotificationService::class);
+        $diagnosis = $service->diagnoseConnection();
+
+        if (! $diagnosis['ok']) {
+            return redirect()
+                ->route('admin.settings.whatsapp.edit')
+                ->withErrors(['api_key' => $diagnosis['message']])
+                ->with('error', 'Tes koneksi WhatsApp gagal: ' . $diagnosis['message']);
+        }
+
+        return redirect()
+            ->route('admin.settings.whatsapp.edit')
+            ->with('success', 'Koneksi ke Dripsender berhasil.');
     }
 
     public function editTemplate(WhatsappTemplate $template)
