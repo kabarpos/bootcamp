@@ -9,6 +9,16 @@
     $brandSegments = explode(' ', trim($brandName), 2);
     $brandPrimary = $brandSegments[0] ?? $brandName;
     $brandSecondary = $brandSegments[1] ?? 'Bootcamp';
+    $user = auth()->user();
+    $isDashboard = request()->routeIs('public.dashboard');
+    $nameParts = $user ? preg_split('/\s+/', trim($user->name)) : [];
+    $initials = $user
+        ? collect($nameParts)
+            ->filter(fn ($part) => $part !== '')
+            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+            ->take(2)
+            ->implode('')
+        : '';
 @endphp
 
 <nav x-data="{ mobileMenuOpen: false }" class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-2xl">
@@ -40,10 +50,70 @@
         </div>
 
         <div class="hidden items-center gap-4 md:flex">
-            <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300/80 transition-colors hover:text-white">Log in</a>
-            <x-public.button href="{{ route('register') }}" class="shadow-xl" data-umami-event="primary-cta-register">
-                Join the Cohort
-            </x-public.button>
+            @guest
+                <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300/80 transition-colors hover:text-white">Log in</a>
+                <x-public.button href="{{ route('register') }}" class="shadow-xl" data-umami-event="primary-cta-register">
+                    Join the Cohort
+                </x-public.button>
+            @else
+                @if ($isDashboard)
+                    <div x-data="{ open: false }" class="relative">
+                        <button
+                            @click="open = !open"
+                            @keydown.escape.window="open = false"
+                            type="button"
+                            class="flex items-center gap-3 rounded-full border border-white/10 bg-slate-900/60 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-sky-400/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+                        >
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/70 to-sky-500/70 text-sm font-semibold text-white">
+                                {{ $initials ?: strtoupper(substr($user->email, 0, 1)) }}
+                            </span>
+                            <span class="text-left leading-tight">
+                                <span class="block text-xs text-slate-400/80">Akun kamu</span>
+                                <span class="block text-sm font-semibold text-white">{{ $user->name }}</span>
+                            </span>
+                            <svg class="h-4 w-4 text-slate-400 transition" :class="{ 'rotate-180': open }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                        <div
+                            x-cloak
+                            x-show="open"
+                            x-transition
+                            @click.away="open = false"
+                            class="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 shadow-2xl backdrop-blur-xl"
+                        >
+                            <a
+                                href="{{ route('profile.show') }}"
+                                class="block px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-900/80 hover:text-white"
+                            >
+                                Edit Profile
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button
+                                    type="submit"
+                                    class="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10 hover:text-rose-200"
+                                >
+                                    Logout
+                                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H3" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <x-public.button href="{{ route('public.dashboard') }}" variant="secondary">
+                        Student Dashboard
+                    </x-public.button>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-public.button type="submit" class="!rounded-full !border-white/15 !bg-slate-900/70 !text-slate-200 hover:!border-rose-400/40 hover:!text-white">
+                            Logout
+                        </x-public.button>
+                    </form>
+                @endif
+            @endguest
         </div>
 
         <div class="-mr-2 flex items-center md:hidden">
@@ -76,12 +146,33 @@
                 </a>
             @endforeach
             <div class="mt-4 grid gap-2">
-                <a href="{{ route('login') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-medium text-slate-200 transition hover:border-sky-500/40 hover:text-white">
-                    Log in
-                </a>
-                <x-public.button href="{{ route('register') }}" class="w-full justify-center">
-                    Join the Cohort
-                </x-public.button>
+                @guest
+                    <a href="{{ route('login') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-medium text-slate-200 transition hover:border-sky-500/40 hover:text-white">
+                        Log in
+                    </a>
+                    <x-public.button href="{{ route('register') }}" class="w-full justify-center">
+                        Join the Cohort
+                    </x-public.button>
+                @else
+                    @if ($isDashboard)
+                        <a href="{{ route('profile.show') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-semibold text-slate-200 transition hover:border-sky-500/40 hover:text-white">
+                            Edit Profile
+                        </a>
+                    @else
+                        <a href="{{ route('public.dashboard') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-semibold text-slate-200 transition hover:border-sky-500/40 hover:text-white">
+                            Student Dashboard
+                        </a>
+                    @endif
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-base font-semibold text-rose-200 transition hover:border-rose-400/50 hover:text-white"
+                        >
+                            Logout
+                        </button>
+                    </form>
+                @endguest
             </div>
         </div>
     </div>
