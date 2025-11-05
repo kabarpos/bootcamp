@@ -27,6 +27,8 @@
     titleLine2="Bootcamp Program"
     :description="$shortDescription"
     :stats="$heroStats"
+    variant="detail"
+    :showImage="false"
 />
 
 <x-public.program-overview-section>

@@ -1,6 +1,6 @@
-<nav class="relative border-b border-white/10 bg-slate-950/70 backdrop-blur-2xl" aria-label="Breadcrumb">
+<nav class="relative hidden sm:block border-b border-white/10 bg-slate-950/70 backdrop-blur-2xl" aria-label="Breadcrumb">
     <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <ol class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
+        <ol class="flex flex-wrap items-center gap-3 text-xs font-normal text-slate-500">
             @foreach($items as $item)
                 @if(!$loop->last)
                     <li class="flex items-center gap-3">

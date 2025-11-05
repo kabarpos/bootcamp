@@ -5,6 +5,8 @@
     titleLine1="Explore Our"
     titleLine2="Bootcamp Programs"
     description="Choose from our carefully designed bootcamp programs to start your journey in tech."
+    variant="list"
+    :showImage="false"
 />
 
 <x-public.filter-section>
