@@ -24,7 +24,7 @@
 <nav x-data="{ mobileMenuOpen: false }" class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-2xl">
     <div class="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-8">
-            <a href="{{ route('public.homepage') }}" class="group flex items-center gap-3 text-slate-200 transition-colors hover:text-white">
+            <a href="{{ route('public.homepage') }}" class="group flex items-center gap-3 text-slate-200 transition-colors hover:text-white cursor-pointer">
                 <span class="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 via-indigo-500 to-blue-700 text-lg font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.6)]">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M12 3v8.25L16.5 9M12 11.25L7.5 9M12 12.75V21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
@@ -39,7 +39,7 @@
             <div class="hidden items-center gap-6 md:flex">
                 @foreach($links as $link)
                     @php
-                        $baseClasses = 'relative text-sm font-semibold tracking-wide text-slate-300/80 transition-colors hover:text-slate-50';
+                        $baseClasses = 'relative text-sm font-semibold tracking-wide text-slate-300/80 transition-colors hover:text-slate-50 cursor-pointer';
                         $classes = $link['active'] ? $baseClasses . ' nav-link-active' : $baseClasses;
                     @endphp
                     <a href="{{ $link['route'] }}" class="{{ $classes }}">
@@ -51,7 +51,7 @@
 
         <div class="hidden items-center gap-4 md:flex">
             @guest
-                <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300/80 transition-colors hover:text-white">Log in</a>
+                <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300/80 transition-colors hover:text-white cursor-pointer">Log in</a>
                 <x-public.button href="{{ route('register') }}" class="shadow-xl" data-umami-event="primary-cta-register">
                     Join the Cohort
                 </x-public.button>
@@ -62,7 +62,7 @@
                             @click="open = !open"
                             @keydown.escape.window="open = false"
                             type="button"
-                            class="flex items-center gap-3 rounded-full border border-white/10 bg-slate-900/60 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-sky-400/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+                            class="flex items-center gap-3 rounded-full border border-white/10 bg-slate-900/60 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-sky-400/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-400/40 cursor-pointer"
                         >
                             <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/70 to-sky-500/70 text-sm font-semibold text-white">
                                 {{ $initials ?: strtoupper(substr($user->email, 0, 1)) }}
@@ -84,7 +84,7 @@
                         >
                             <a
                                 href="{{ route('profile.show') }}"
-                                class="block px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-900/80 hover:text-white"
+                                class="block px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-900/80 hover:text-white cursor-pointer"
                             >
                                 Edit Profile
                             </a>
@@ -92,7 +92,7 @@
                                 @csrf
                                 <button
                                     type="submit"
-                                    class="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10 hover:text-rose-200"
+                                    class="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10 hover:text-rose-200 cursor-pointer"
                                 >
                                     Logout
                                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
@@ -120,7 +120,7 @@
             <button
                 @click="mobileMenuOpen = !mobileMenuOpen"
                 type="button"
-                class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-900/50 p-2 text-slate-200 transition hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-900/50 p-2 text-slate-200 transition hover:bg-slate-800/60 focus:outline-none focus:ring-2 focus:ring-sky-400 cursor-pointer">
                 <span class="sr-only">Open main menu</span>
                 <svg x-show="!mobileMenuOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 8h16M4 12h16M4 16h16" />
@@ -141,13 +141,13 @@
             @foreach($links as $link)
                 <a
                     href="{{ $link['route'] }}"
-                    class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-medium text-slate-200 transition hover:border-sky-500/40 hover:text-white {{ $link['active'] ? 'ring-1 ring-inset ring-sky-400/60' : '' }}">
+                    class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-medium text-slate-200 transition hover:border-sky-500/40 hover:text-white cursor-pointer {{ $link['active'] ? 'ring-1 ring-inset ring-sky-400/60' : '' }}">
                     {{ $link['label'] }}
                 </a>
             @endforeach
             <div class="mt-4 grid gap-2">
                 @guest
-                    <a href="{{ route('login') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-medium text-slate-200 transition hover:border-sky-500/40 hover:text-white">
+                    <a href="{{ route('login') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-medium text-slate-200 transition hover:border-sky-500/40 hover:text-white cursor-pointer">
                         Log in
                     </a>
                     <x-public.button href="{{ route('register') }}" class="w-full justify-center">
@@ -155,11 +155,11 @@
                     </x-public.button>
                 @else
                     @if ($isDashboard)
-                        <a href="{{ route('profile.show') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-semibold text-slate-200 transition hover:border-sky-500/40 hover:text-white">
+                        <a href="{{ route('profile.show') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-semibold text-slate-200 transition hover:border-sky-500/40 hover:text-white cursor-pointer">
                             Edit Profile
                         </a>
                     @else
-                        <a href="{{ route('public.dashboard') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-semibold text-slate-200 transition hover:border-sky-500/40 hover:text-white">
+                        <a href="{{ route('public.dashboard') }}" class="block rounded-xl border border-white/[0.08] bg-slate-900/60 px-4 py-3 text-base font-semibold text-slate-200 transition hover:border-sky-500/40 hover:text-white cursor-pointer">
                             Student Dashboard
                         </a>
                     @endif
@@ -167,7 +167,7 @@
                         @csrf
                         <button
                             type="submit"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-base font-semibold text-rose-200 transition hover:border-rose-400/50 hover:text-white"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-base font-semibold text-rose-200 transition hover:border-rose-400/50 hover:text-white cursor-pointer"
                         >
                             Logout
                         </button>

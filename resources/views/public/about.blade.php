@@ -5,6 +5,8 @@
     titleLine1="About Our"
     titleLine2="Bootcamp Program"
     description="We're passionate about transforming careers through intensive, hands-on learning experiences."
+    variant="list"
+    :showImage="false"
 />
 
 <section class="relative py-24">

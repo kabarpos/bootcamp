@@ -4,7 +4,7 @@
             @foreach($items as $item)
                 @if(!$loop->last)
                     <li class="flex items-center gap-3">
-                        <a href="{{ $item['url'] }}" class="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-slate-300 transition hover:border-sky-400/40 hover:text-white">
+                        <a href="{{ $item['url'] }}" class="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-slate-300 transition hover:border-sky-400/40 hover:text-white cursor-pointer">
                             {{ $item['label'] }}
                         </a>
                         <svg class="h-4 w-4 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

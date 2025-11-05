@@ -5,13 +5,24 @@
     titleLine1="Get in Touch"
     titleLine2="With Our Team"
     description="Have questions about our bootcamps? We're here to help you take the next step in your career."
+    variant="list"
+    :showImage="false"
 />
 
 <section class="relative py-24">
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.14),_transparent_65%)]"></div>
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="lg:grid lg:grid-cols-3 lg:gap-8">
-            <x-public.contact-info-section>
+        @php
+            $waRaw = $contactInfo['phone'] ?? '+62811888000';
+            $waNumber = preg_replace('/\D+/', '', $waRaw);
+            $emailAddress = $contactInfo['email'] ?? 'support@bootcamp.com';
+        @endphp
+
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-[0.25fr_0.75fr] lg:grid-cols-[0.25fr_0.75fr]">
+            <!-- Kolom kiri: Quick Actions + Contact info -->
+            <div class="space-y-8">
+
+                <x-public.contact-info-section :showHeader="false">
                 <x-public.contact-info-item 
                     line1="{{ $contactInfo['phone'] }}"
                     line2="Mon-Fri 9am to 5pm (EST)"
@@ -63,81 +74,42 @@
                         </svg>
                     </x-public.social-media-link>
                 </x-public.social-media-section>
-            </x-public.contact-info-section>
-            
-            <x-public.contact-form-section>
-                <x-public.form-input 
-                    id="name"
-                    label="Full name"
-                    autocomplete="name"
-                    placeholder="Your full name"
+                </x-public.contact-info-section>
+            </div>
+
+            <!-- Kolom kanan: Map + Quick Actions bawah map -->
+            <div>
+                <x-public.map-section 
+                    :subtitle="'Our Location'"
+                    :title="'Visit Our Campus'"
+                    :description="'Come see our facilities and meet our team in person.'"
+                    mapEmbedUrl="https://maps.google.com/maps?q=Jakarta&t=&z=12&ie=UTF8&iwloc=&output=embed"
                 />
-                
-                <x-public.form-input 
-                    id="email"
-                    label="Email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="your.email@example.com"
-                />
-                
-                <x-public.form-input 
-                    id="phone"
-                    label="Phone"
-                    type="tel"
-                    autocomplete="tel"
-                    placeholder="(123) 456-7890"
-                />
-                
-                <x-public.form-input 
-                    id="subject"
-                    label="Subject"
-                    placeholder="What is this regarding?"
-                    class="md:col-span-2"
-                />
-                
-                <x-public.form-textarea 
-                    id="message"
-                    label="Message"
-                    placeholder="Please share as much detail as possible"
-                />
-                
-                <div class="md:col-span-2 flex justify-end">
-                    <x-public.button type="submit">
-                        Submit
-                    </x-public.button>
+
+                <!-- Quick Actions dipindahkan ke bawah map -->
+                <div class="mt-8 glass-card relative overflow-hidden rounded-[32px] border border-white/10 p-8">
+                    <span class="spotlight-ring"></span>
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Butuh bantuan cepat?</h3>
+                            <p class="mt-2 text-sm text-slate-300">Chat via WhatsApp atau kirim email ke tim kami.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="https://wa.me/{{ $waNumber }}" target="_blank" rel="noopener" class="cursor-pointer inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/60 px-5 py-2.5 text-sm font-semibold text-sky-200 transition hover:border-sky-400/40 hover:text-white">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.24 7.76A6 6 0 106 16l-1 3 3-1a6 6 0 008.24-10.24z"/></svg>
+                                Chat WhatsApp
+                            </a>
+                            <a href="mailto:{{ $emailAddress }}" class="cursor-pointer inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/60 px-5 py-2.5 text-sm font-semibold text-sky-200 transition hover:border-sky-400/40 hover:text-white">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                Kirim Email
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </x-public.contact-form-section>
+            </div>
         </div>
     </div>
 </section>
 
-<x-public.faq-section>
-    <x-public.faq-item 
-        question="How long do the bootcamps last?"
-        answer="Our full-time bootcamps typically last 12-16 weeks, while our part-time options run for 20-24 weeks. The exact duration depends on the specific program you choose."
-    />
-    
-    <x-public.faq-item 
-        question="Do I need any prior experience to join?"
-        answer="Most of our bootcamps are designed for beginners with no prior coding experience. However, we also offer intermediate and advanced programs for those with some background in tech."
-    />
-    
-    <x-public.faq-item 
-        question="What kind of job support do you provide?"
-        answer="We offer comprehensive career services including resume review, interview preparation, portfolio development, and direct connections with our hiring partners. Our job placement rate is over 90% within 6 months of graduation."
-    />
-    
-    <x-public.faq-item 
-        question="Are there financing options available?"
-        answer="Yes, we offer multiple financing options including upfront payment, payment plans, and income share agreements. We also provide information about external financing options and scholarships."
-    />
-    
-    <x-public.faq-item 
-        question="What technologies will I learn?"
-        answer="The specific technologies vary by program, but all our bootcamps focus on current industry-standard tools and frameworks. You'll work with modern technologies that are in high demand in today's job market."
-    />
-</x-public.faq-section>
-
-<x-public.map-section />
+<!-- FAQ section dihapus sesuai permintaan -->
 @endsection

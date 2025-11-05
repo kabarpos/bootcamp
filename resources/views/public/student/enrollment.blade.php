@@ -208,7 +208,7 @@
                                 <p class="font-semibold text-slate-200">Platform meeting</p>
                                 <p>{{ $location['meeting_platform'] ?? 'Menunggu informasi' }}</p>
                                 @if($location['meeting_link'])
-                                    <a href="{{ $location['meeting_link'] }}" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-200 transition hover:text-sky-100">
+                                    <a href="{{ $location['meeting_link'] }}" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-200 transition hover:text-sky-100 cursor-pointer">
                                         Buka link meeting
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H9.75m9.75 0V14.25" />
@@ -244,7 +244,7 @@
                     <section class="rounded-[28px] border border-white/10 bg-slate-950/70 p-6 backdrop-blur-2xl sm:p-8">
                         <h2 class="text-lg font-semibold text-white">Materi &amp; sumber belajar</h2>
                         <p class="mt-2 text-sm text-slate-300/85">Kumpulan materi, template, dan referensi yang akan diperbarui sepanjang program.</p>
-                        <a href="{{ $resourcesUrl }}" class="mt-5 inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white">
+                        <a href="{{ $resourcesUrl }}" class="mt-5 inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-sky-400/40 hover:text-white cursor-pointer">
                             Buka halaman materi
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />

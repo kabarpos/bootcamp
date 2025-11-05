@@ -1,4 +1,4 @@
-﻿@extends('layouts.public')
+@extends('layouts.public')
 
 @section('content')
 <div class="min-h-screen bg-background py-12">
@@ -9,7 +9,7 @@
                 <p class="mt-2 text-muted-foreground">Kelola dan ikuti perkembangan bootcamp yang sudah kamu daftarkan.</p>
             </div>
             <a href="{{ route('public.bootcamps') }}"
-               class="inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:border-primary hover:text-primary transition">
+               class="inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:border-primary hover:text-primary transition cursor-pointer">
                 Jelajahi Bootcamp Lainnya
             </a>
         </div>
@@ -52,7 +52,7 @@
                     <h3 class="text-lg font-semibold text-foreground">Belum ada bootcamp yang kamu ikuti</h3>
                     <p class="mt-2 text-sm text-muted-foreground">Mulai perjalanan belajar kamu dengan mendaftar bootcamp pilihan.</p>
                     <a href="{{ route('public.bootcamps') }}"
-                       class="mt-5 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition">
+                       class="mt-5 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition cursor-pointer">
                         Cari Bootcamp
                     </a>
                 </div>
@@ -186,7 +186,7 @@
                 </div>
                 <div class="space-y-4 p-6">
                     @forelse($blogPosts as $post)
-                        <a href="#" class="block rounded-lg border border-border p-4 transition hover:border-primary">
+                        <a href="#" class="block rounded-lg border border-border p-4 transition hover:border-primary cursor-pointer">
                             <h4 class="font-semibold text-foreground">{{ $post->title }}</h4>
                             <p class="mt-1 text-sm text-muted-foreground">{{ $post->excerpt }}</p>
                             <div class="mt-3 text-xs text-muted-foreground flex items-center gap-2">

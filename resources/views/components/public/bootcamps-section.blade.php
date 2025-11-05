@@ -18,7 +18,7 @@
                         <p>Filter by focus:</p>
                         <p class="text-xs text-slate-400">Web | Data &amp; AI | Product | DevOps</p>
                     </div>
-                    <a href="{{ route('public.bootcamps') }}" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300 transition hover:border-sky-400/40 hover:text-white">
+                    <a href="{{ route('public.bootcamps') }}" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300 transition hover:border-sky-400/40 hover:text-white cursor-pointer">
                         See all cohorts
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
                             <path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />

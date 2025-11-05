@@ -96,6 +96,7 @@
     filter: blur(18px);
     opacity: 0;
     transition: opacity 0.4s ease;
+    pointer-events: none;
 }
 
 .glass-card:hover .spotlight-ring {
@@ -126,4 +127,67 @@
     box-shadow:
         0 20px 38px -18px rgba(56, 189, 248, 0.85),
         inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Fix autofill background on dark inputs to keep colors consistent */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.6) inset !important;
+    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.6) inset !important;
+    -webkit-text-fill-color: #e2e8f0 !important; /* text-slate-200 */
+    caret-color: #e2e8f0 !important;
+    border: 1px solid rgba(148, 163, 235, 0.10) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.6) inset !important;
+    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.6) inset !important;
+    -webkit-text-fill-color: #e2e8f0 !important;
+    caret-color: #e2e8f0 !important;
+}
+
+/* Ensure base input colors stay consistent regardless of browser autofill */
+input,
+textarea,
+select {
+    background-color: rgba(15, 23, 42, 0.60);
+    color: #e2e8f0;
+}
+
+/* Scope-specific hardening for autofill inside dark forms */
+.autofill-dark {
+    color-scheme: dark;
+}
+
+.autofill-dark input,
+.autofill-dark textarea,
+.autofill-dark select {
+    background-color: rgba(15, 23, 42, 0.60) !important;
+    color: #e2e8f0 !important;
+}
+
+.autofill-dark input:-webkit-autofill,
+.autofill-dark textarea:-webkit-autofill,
+.autofill-dark select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.60) inset !important;
+    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.60) inset !important;
+    background-color: rgba(15, 23, 42, 0.60) !important;
+    -webkit-text-fill-color: #e2e8f0 !important;
+    caret-color: #e2e8f0 !important;
+    filter: none !important;
+    background-clip: padding-box !important;
+}
+
+.autofill-dark input:-webkit-autofill:focus,
+.autofill-dark textarea:-webkit-autofill:focus,
+.autofill-dark select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.60) inset !important;
+    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.60) inset !important;
+    background-color: rgba(15, 23, 42, 0.60) !important;
 }

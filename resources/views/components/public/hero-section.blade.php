@@ -23,6 +23,8 @@
         : 'absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.25),_transparent_55%),radial-gradient(circle_at_bottom_left,_rgba(99,102,241,0.25),_transparent_50%)]';
     $gridColsClass = $showImage ? 'lg:grid-cols-[1.05fr_0.95fr]' : 'lg:grid-cols-1';
     $textAlignClass = $variant === 'list' ? 'text-center lg:text-left' : '';
+    $titleWeightClass = $variant === 'list' ? 'font-extrabold' : 'font-bold';
+    $descMaxWidth = $variant === 'list' ? 'max-w-3xl' : 'max-w-2xl';
 @endphp
 
 <section class="relative overflow-hidden">
@@ -38,7 +40,7 @@
                 @endif
 
                 <div class="space-y-4">
-                    <h1 class="text-4xl font-bold leading-tight {{ $variant === 'detail' ? 'text-foreground' : 'text-white' }} sm:text-5xl lg:text-6xl">
+                    <h1 class="text-4xl {{ $titleWeightClass }} leading-tight {{ $variant === 'detail' ? 'text-foreground' : 'text-white' }} sm:text-5xl lg:text-6xl">
                         <span class="inline">{{ $titleLine1 }}</span>
                         @if(in_array($variant, ['detail', 'list']))
                             <span class="inline text-primary">{{ $titleLine2 }}</span>
@@ -48,7 +50,7 @@
                             </span>
                         @endif
                     </h1>
-                    <p class="max-w-2xl text-lg {{ in_array($variant, ['detail', 'list']) ? 'text-muted-foreground' : 'text-slate-300' }} sm:text-xl">
+                    <p class="{{ $descMaxWidth }} text-lg {{ in_array($variant, ['detail', 'list']) ? 'text-muted-foreground' : 'text-slate-300' }} sm:text-xl">
                         {{ $description }}
                     </p>
                 </div>
